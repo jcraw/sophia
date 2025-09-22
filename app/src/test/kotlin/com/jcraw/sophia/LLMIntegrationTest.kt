@@ -3,11 +3,17 @@ package com.jcraw.sophia
 import com.jcraw.llm.LLMClient
 import com.jcraw.llm.OpenAIClient
 import com.jcraw.llm.OpenAIModel
+import com.jcraw.sophia.philosophers.*
+import com.jcraw.sophia.service.PhilosopherService
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledIf
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class LLMIntegrationTest {
 
@@ -127,6 +133,124 @@ class LLMIntegrationTest {
             throw e
         } finally {
             llmClient.close()
+        }
+    }
+
+    @Test
+    @EnabledIf("hasApiKey")
+    fun `test complete UI workflow - full philosopher conversation`() = runBlocking {
+        val apiKey = System.getenv("OPENAI_API_KEY")
+        val service = PhilosopherService(apiKey)
+
+        try {
+            println("🧪 Testing complete UI workflow...")
+
+            // Step 1: User selects philosophers (simulate UI selection)
+            val allPhilosophers = service.getAllPhilosophers()
+            assertTrue(allPhilosophers.isNotEmpty(), "Should have philosophers available")
+
+            val selectedPhilosophers = listOf(
+                allPhilosophers.first { it.id == "socrates" },
+                allPhilosophers.first { it.id == "nietzsche" },
+                allPhilosophers.first { it.id == "kant" }
+            )
+
+            println("🎭 Selected philosophers: ${selectedPhilosophers.map { it.name }}")
+
+            // Step 2: User enters topic and config (simulate UI input)
+            val topic = "What is the meaning of life?"
+            val config = ConversationConfig(
+                topic = topic,
+                participants = selectedPhilosophers,
+                maxRounds = 2,  // Shorter for testing
+                maxWordsPerResponse = 100  // Shorter responses for cost control
+            )
+
+            println("💭 Topic: $topic")
+            println("⚙️ Config: ${config.maxRounds} rounds, ${config.maxWordsPerResponse} words max")
+
+            // Step 3: Verify initial state
+            var state = service.conversationState.first()
+            assertIs<ConversationState.NotStarted>(state, "Should start in NotStarted state")
+
+            // Step 4: Start conversation (simulate user clicking "Start")
+            println("🚀 Starting conversation...")
+            service.startConversation(config)
+
+            // Step 5: Wait for conversation to complete
+            println("⏳ Waiting for conversation to complete...")
+
+            withTimeout(120_000) { // 2 minute timeout
+                var attempts = 0
+                while (attempts < 50) { // Safety limit
+                    state = service.conversationState.first()
+                    when (state) {
+                        is ConversationState.InProgress -> {
+                            println("📈 Progress: Round ${state.currentRound}, Philosopher: ${state.currentPhilosopher?.name}")
+                            kotlinx.coroutines.delay(2000) // Check every 2 seconds
+                            attempts++
+                        }
+                        is ConversationState.Completed -> {
+                            println("✅ Conversation completed!")
+                            break
+                        }
+                        is ConversationState.Error -> {
+                            throw RuntimeException("Conversation failed: ${state.message}", state.cause)
+                        }
+                        else -> {
+                            kotlinx.coroutines.delay(1000)
+                            attempts++
+                        }
+                    }
+                }
+            }
+
+            // Step 6: Verify final state and results
+            val finalState = service.conversationState.first()
+            assertIs<ConversationState.Completed>(finalState, "Should complete successfully")
+
+            println("🏁 Final state verification...")
+            assertEquals(config.topic, finalState.config.topic, "Topic should match")
+            assertEquals(selectedPhilosophers.size, finalState.config.participants.size, "Participant count should match")
+
+            // Verify we got contributions from all philosophers
+            val contributions = finalState.finalContributions
+            assertTrue(contributions.isNotEmpty(), "Should have contributions")
+
+            val philosopherNames = contributions.map { it.philosopher.name }.distinct()
+            assertEquals(selectedPhilosophers.size, philosopherNames.size,
+                "Should have contributions from all ${selectedPhilosophers.size} philosophers")
+
+            // Verify round structure
+            val rounds = finalState.rounds
+            assertTrue(rounds.size <= config.maxRounds, "Should not exceed max rounds")
+
+            println("📊 Conversation Summary:")
+            println("   - Total rounds: ${rounds.size}")
+            println("   - Total contributions: ${contributions.size}")
+            println("   - Philosophers participated: ${philosopherNames.joinToString(", ")}")
+
+            contributions.forEach { contribution ->
+                val preview = contribution.response.take(80).replace("\n", " ")
+                println("   - ${contribution.philosopher.name} (R${contribution.roundNumber}): $preview...")
+                assertTrue(contribution.response.isNotBlank(), "Contribution should not be blank")
+                assertTrue(contribution.response.length > 20, "Contribution should be substantive")
+            }
+
+            // Verify each philosopher spoke at least once
+            selectedPhilosophers.forEach { philosopher ->
+                val hasContribution = contributions.any { it.philosopher.id == philosopher.id }
+                assertTrue(hasContribution, "${philosopher.name} should have at least one contribution")
+            }
+
+            println("🎉 Complete UI workflow test passed!")
+
+        } catch (e: Exception) {
+            println("❌ Complete UI workflow test failed: ${e.message}")
+            e.printStackTrace()
+            throw e
+        } finally {
+            service.close()
         }
     }
 }
