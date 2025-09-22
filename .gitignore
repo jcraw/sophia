@@ -6,6 +6,7 @@ build/
 
 # Local configuration
 local.properties
+**/config.properties
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
