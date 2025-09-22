@@ -54,13 +54,21 @@ Sophia is a philosophical discussion application that allows users to input topi
 
 ## Setup
 
-1. **API Key Configuration**: Create a `local.properties` file in the root directory:
+**API Key Configuration** (choose one method):
+
+1. **App Resources** (recommended): Add API key to `app/src/main/resources/config.properties`:
    ```
    openai.api.key=your_actual_api_key_here
    ```
-   This file is gitignored and won't be committed to version control.
 
-2. **Alternative**: Set the `OPENAI_API_KEY` environment variable.
+2. **Local Properties**: Create `local.properties` in root directory:
+   ```
+   openai.api.key=your_actual_api_key_here
+   ```
+
+3. **Environment Variable**: Set `OPENAI_API_KEY` environment variable.
+
+All methods are gitignored and won't be committed to version control.
 
 ## Testing
 
@@ -68,9 +76,10 @@ The project includes comprehensive integration tests that verify the entire LLM 
 
 ### LLM Integration Tests
 - **Basic API Test**: Verifies OpenAI API connectivity and response parsing
-- **Philosopher Conversation Test**: Tests the full philosopher conversation flow
-- **Prerequisites**: Tests automatically use API key from `local.properties` or environment
-- **Cost**: Tests use minimal tokens (~$0.0000 per run) with `gpt-4.1-nano` model
+- **Philosopher Conversation Test**: Tests single philosopher responses
+- **Complete UI Workflow Test**: End-to-end test simulating full user experience (3 philosophers, 2 rounds)
+- **Prerequisites**: Tests automatically use API key from config or environment
+- **Cost**: Tests use minimal tokens (~$0.001 per full workflow test) with `gpt-4.1-nano` model
 
 ### Running Tests
 ```bash
@@ -79,6 +88,9 @@ The project includes comprehensive integration tests that verify the entire LLM 
 
 # Run only LLM integration tests
 ./gradlew :app:test --tests "*LLMIntegrationTest*"
+
+# Run complete UI workflow test specifically
+./gradlew :app:test --tests "*LLMIntegrationTest*test complete UI workflow*"
 
 # View test results
 open app/build/reports/tests/test/index.html
@@ -101,7 +113,7 @@ The application includes comprehensive logging for troubleshooting:
 
 ### Common Issues
 - **"Missing fields" error**: Usually indicates API error response instead of success
-- **Authentication issues**: Check API key in `local.properties`
+- **Authentication issues**: Check API key in `config.properties`, `local.properties`, or environment
 - **Network timeouts**: API calls have 2-minute timeout configured
 
 ## Important Notes
