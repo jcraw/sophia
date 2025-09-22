@@ -20,9 +20,15 @@ class LLMIntegrationTest {
     companion object {
         @JvmStatic
         fun hasApiKey(): Boolean {
-            val apiKey = System.getenv("OPENAI_API_KEY")
-            println("🔍 Debug: OPENAI_API_KEY = '${apiKey?.take(10)}...' (length: ${apiKey?.length})")
-            return !apiKey.isNullOrBlank()
+            val apiKey = Config.openAiApiKey.ifBlank {
+                System.getenv("OPENAI_API_KEY") ?: ""
+            }
+            println("🔍 Debug: API key = '${apiKey.take(10)}...' (length: ${apiKey.length})")
+            return apiKey.isNotBlank()
+        }
+
+        private fun getApiKey(): String = Config.openAiApiKey.ifBlank {
+            System.getenv("OPENAI_API_KEY") ?: ""
         }
     }
 
@@ -30,7 +36,7 @@ class LLMIntegrationTest {
     @EnabledIf("hasApiKey")
     fun `test real LLM integration with GPT4_1Nano`() = runBlocking {
         // Arrange
-        val apiKey = System.getenv("OPENAI_API_KEY")
+        val apiKey = getApiKey()
         val llmClient: LLMClient = OpenAIClient(apiKey)
 
         val systemPrompt = """
@@ -86,7 +92,7 @@ class LLMIntegrationTest {
     @EnabledIf("hasApiKey")
     fun `test philosopher conversation flow`() = runBlocking {
         // Arrange
-        val apiKey = System.getenv("OPENAI_API_KEY")
+        val apiKey = getApiKey()
         val llmClient: LLMClient = OpenAIClient(apiKey)
 
         val socraticPrompt = """
@@ -139,7 +145,7 @@ class LLMIntegrationTest {
     @Test
     @EnabledIf("hasApiKey")
     fun `test complete UI workflow - full philosopher conversation`() = runBlocking {
-        val apiKey = System.getenv("OPENAI_API_KEY")
+        val apiKey = getApiKey()
         val service = PhilosopherService(apiKey)
 
         try {

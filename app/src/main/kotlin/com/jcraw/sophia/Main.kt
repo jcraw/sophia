@@ -16,12 +16,14 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SophiaApp() {
-    val apiKey = System.getenv("OPENAI_API_KEY") ?: ""
     val philosopherService = remember {
+        val apiKey = Config.openAiApiKey.ifBlank {
+            System.getenv("OPENAI_API_KEY") ?: ""
+        }
         if (apiKey.isBlank()) {
-            println("⚠️ No API key found in environment variable OPENAI_API_KEY")
+            println("⚠️ No API key found in config.properties or environment variable OPENAI_API_KEY")
         } else {
-            println("✅ Found API key in environment: ${apiKey.take(10)}...")
+            println("✅ Found API key: ${apiKey.take(10)}...")
         }
         PhilosopherService(apiKey = apiKey)
     }

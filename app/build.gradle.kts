@@ -45,6 +45,18 @@ tasks.named<JavaExec>("run") {
     environment("OPENAI_API_KEY", apiKey)
 }
 
+// Debug task to check API key loading
+tasks.register("debugApiKey") {
+    doLast {
+        val apiKey = localProperties.getProperty("openai.api.key") ?: System.getenv("OPENAI_API_KEY") ?: ""
+        println("🔍 Debug API Key:")
+        println("   From local.properties: ${localProperties.getProperty("openai.api.key")?.take(10)}...")
+        println("   From environment: ${System.getenv("OPENAI_API_KEY")?.take(10) ?: "null"}")
+        println("   Final value: ${apiKey.take(10)}... (length: ${apiKey.length})")
+        println("   local.properties file exists: ${localPropertiesFile.exists()}")
+    }
+}
+
 tasks.test {
     useJUnitPlatform()
 
