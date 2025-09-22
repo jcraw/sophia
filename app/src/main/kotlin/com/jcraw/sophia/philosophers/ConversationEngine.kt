@@ -1,0 +1,152 @@
+package com.jcraw.sophia.philosophers
+
+import com.jcraw.llm.LLMClient
+import com.jcraw.llm.OpenAIModel
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.delay
+import java.time.Instant
+
+class ConversationEngine(
+    private val llmClient: LLMClient,
+    private val stateManager: ConversationStateManager
+) {
+    val state: StateFlow<ConversationState> = stateManager.state
+
+    suspend fun startConversation(config: ConversationConfig) {
+        try {
+            println("🚀 Starting conversation with ${config.participants.size} philosophers on topic: '${config.topic}'")
+            stateManager.startConversation(config)
+            processNextContribution()
+        } catch (e: Exception) {
+            println("❌ Failed to start conversation: ${e.message}")
+            e.printStackTrace()
+            stateManager.setError("Failed to start conversation", e)
+        }
+    }
+
+    suspend fun processNextContribution() {
+        val currentState = state.value
+        if (currentState !is ConversationState.InProgress) {
+            println("⚠️ processNextContribution called but state is not InProgress: ${currentState::class.simpleName}")
+            return
+        }
+
+        val philosopher = currentState.currentPhilosopher
+        if (philosopher == null) {
+            println("⚠️ No current philosopher available")
+            return
+        }
+
+        println("💭 Generating response for ${philosopher.name} (Round ${currentState.currentRound})")
+
+        try {
+            val context = buildContextForPhilosopher(philosopher, currentState)
+            val prompt = buildPromptForPhilosopher(philosopher, currentState.config.topic, context)
+
+            println("📝 System prompt length: ${philosopher.systemPrompt.length} chars")
+            println("📝 User context length: ${prompt.length} chars")
+            println("🎯 Using model: ${OpenAIModel.GPT4_1Nano.modelId}")
+
+            val response = llmClient.chatCompletion(
+                model = OpenAIModel.GPT4_1Nano, // Using cost-effective model as per guidelines
+                systemPrompt = philosopher.systemPrompt,
+                userContext = prompt,
+                maxTokens = currentState.config.maxWordsPerResponse * 2, // Rough conversion
+                temperature = 0.8 // Higher creativity for philosophical discussions
+            )
+
+            println("✅ Received LLM response for ${philosopher.name}")
+            val responseText = response.choices.firstOrNull()?.message?.content?.trim()
+
+            if (responseText.isNullOrBlank()) {
+                throw RuntimeException("Empty or null response from LLM. Choices: ${response.choices.size}")
+            }
+
+            println("📜 ${philosopher.name} response: ${responseText.take(100)}...")
+
+            val contribution = PhilosopherContribution(
+                philosopher = philosopher,
+                response = responseText,
+                timestamp = Instant.now(),
+                roundNumber = currentState.currentRound
+            )
+
+            stateManager.addContribution(contribution)
+            println("✅ Added contribution for ${philosopher.name}")
+
+            // Small delay to make conversation feel more natural
+            delay(500)
+
+            // Continue with next philosopher if conversation isn't complete
+            val newState = state.value
+            if (newState is ConversationState.InProgress && !newState.isComplete) {
+                println("⏭️ Continuing to next philosopher...")
+                processNextContribution()
+            } else {
+                println("🎉 Conversation complete or stopped")
+            }
+
+        } catch (e: Exception) {
+            println("❌ Failed to generate response for ${philosopher.name}: ${e.message}")
+            e.printStackTrace()
+            stateManager.setError("Failed to generate response for ${philosopher.name}", e)
+        }
+    }
+
+    private fun buildContextForPhilosopher(
+        philosopher: Philosopher,
+        state: ConversationState.InProgress
+    ): String {
+        val allContributions = state.getAllContributions()
+
+        if (allContributions.isEmpty()) {
+            return "This is the start of a philosophical discussion on the topic: \"${state.config.topic}\""
+        }
+
+        val context = StringBuilder()
+        context.appendLine("Previous contributions to this philosophical discussion on \"${state.config.topic}\":")
+        context.appendLine()
+
+        // Group contributions by round for clarity
+        allContributions.groupBy { it.roundNumber }.forEach { (round, contributions) ->
+            context.appendLine("=== Round $round ===")
+            contributions.forEach { contribution ->
+                context.appendLine("${contribution.philosopher.name}: ${contribution.response}")
+                context.appendLine()
+            }
+        }
+
+        if (state.currentRound > 1) {
+            context.appendLine("Now beginning Round ${state.currentRound}.")
+        }
+
+        return context.toString()
+    }
+
+    private fun buildPromptForPhilosopher(
+        philosopher: Philosopher,
+        topic: String,
+        context: String
+    ): String {
+        return buildString {
+            appendLine("Topic for discussion: \"$topic\"")
+            appendLine()
+
+            if (context.contains("Previous contributions")) {
+                appendLine(context)
+                appendLine("Please respond to the discussion as ${philosopher.name}. ")
+                appendLine("Build upon or challenge the previous points made, staying true to your philosophical perspective. ")
+                appendLine("Keep your response concise but substantive (around 100-150 words).")
+            } else {
+                appendLine(context)
+                appendLine("Please provide your initial thoughts on this topic as ${philosopher.name}. ")
+                appendLine("Share your philosophical perspective and approach to this question. ")
+                appendLine("Keep your response concise but substantive (around 100-150 words).")
+            }
+        }
+    }
+
+    fun reset() {
+        stateManager.reset()
+    }
+}

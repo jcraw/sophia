@@ -3,49 +3,62 @@ package com.jcraw.sophia
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.jcraw.sophia.philosophers.ConversationState
+import com.jcraw.sophia.service.PhilosopherService
+import com.jcraw.sophia.ui.ConversationScreen
+import com.jcraw.sophia.ui.ConversationSetupScreen
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SophiaApp() {
+    val apiKey = System.getenv("OPENAI_API_KEY") ?: ""
+    val philosopherService = remember {
+        if (apiKey.isBlank()) {
+            println("⚠️ No API key found in environment variable OPENAI_API_KEY")
+        } else {
+            println("✅ Found API key in environment: ${apiKey.take(10)}...")
+        }
+        PhilosopherService(apiKey = apiKey)
+    }
+
+    val scope = rememberCoroutineScope()
+    val conversationState by philosopherService.conversationState.collectAsState()
+    var showSetup by remember { mutableStateOf(true) }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            philosopherService.close()
+        }
+    }
+
     MaterialTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "Sophia",
-                    style = MaterialTheme.typography.headlineLarge
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "AI Assistant Application",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Button(
-                    onClick = {
-                        println("Sophia app launched!")
+            if (showSetup && conversationState is ConversationState.NotStarted) {
+                ConversationSetupScreen(
+                    philosophers = philosopherService.getAllPhilosophers(),
+                    onStartConversation = { config ->
+                        scope.launch {
+                            philosopherService.startConversation(config)
+                            showSetup = false
+                        }
                     }
-                ) {
-                    Text("Get Started")
-                }
+                )
+            } else {
+                ConversationScreen(
+                    state = conversationState,
+                    onNewConversation = {
+                        philosopherService.resetConversation()
+                        showSetup = true
+                    }
+                )
             }
         }
     }
@@ -54,8 +67,8 @@ fun SophiaApp() {
 fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
-        title = "Sophia",
-        state = rememberWindowState(width = 400.dp, height = 300.dp)
+        title = "Sophia - Philosophical Discussions",
+        state = rememberWindowState(width = 1000.dp, height = 700.dp)
     ) {
         SophiaApp()
     }

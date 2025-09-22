@@ -1,8 +1,18 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     kotlin("jvm") version "2.0.21"
     id("org.jetbrains.kotlin.plugin.compose") version "2.0.21"
     id("org.jetbrains.compose") version "1.7.0"
     application
+}
+
+// Load local properties
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
 }
 
 group = "com.jcraw"
@@ -17,6 +27,8 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
+    implementation(project(":llm-wrapper"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 
     testImplementation(kotlin("test"))
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
@@ -27,8 +39,18 @@ application {
     mainClass.set("com.jcraw.sophia.MainKt")
 }
 
+// Pass API key to application at runtime
+tasks.named<JavaExec>("run") {
+    val apiKey = localProperties.getProperty("openai.api.key") ?: System.getenv("OPENAI_API_KEY") ?: ""
+    environment("OPENAI_API_KEY", apiKey)
+}
+
 tasks.test {
     useJUnitPlatform()
+
+    // Pass API key to tests
+    val apiKey = localProperties.getProperty("openai.api.key") ?: System.getenv("OPENAI_API_KEY") ?: ""
+    environment("OPENAI_API_KEY", apiKey)
 }
 
 java {
