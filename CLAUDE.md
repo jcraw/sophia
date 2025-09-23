@@ -24,19 +24,22 @@ Sophia is a philosophical discussion application that allows users to input topi
 - `./gradlew compileTestJava` - Compile test sources
 - `./gradlew :app:compileKotlin` - Compile Kotlin sources in app module
 - `./gradlew :discussion:compileKotlin` - Compile Kotlin sources in discussion module
+- `./gradlew :config:compileKotlin` - Compile Kotlin sources in config module
 
 ## Project Structure
 
 ### Key Configuration Files
 - `build.gradle.kts` - Main build configuration with Java plugin and JUnit 5 dependencies
-- `settings.gradle.kts` - Project settings with app, discussion, and llm-wrapper modules
+- `settings.gradle.kts` - Project settings with app, config, discussion, and llm-wrapper modules
 - `app/build.gradle.kts` - App module build configuration with Compose Multiplatform
+- `config/build.gradle.kts` - Config module build configuration
 - `discussion/build.gradle.kts` - Discussion module build configuration
 - `gradle/wrapper/` - Gradle wrapper (version 8.14)
 
 ### Modules
 - **Root module** - Base Java project with JUnit 5
 - **app module** - UI layer with Compose components and service integration
+- **config module** - Centralized configuration for LLM models and prompts
 - **discussion module** - Domain logic for philosophical conversations and philosopher management
 - **llm-wrapper module** - Wrapper around external LLM client for OpenAI integration
 
@@ -47,6 +50,10 @@ Sophia is a philosophical discussion application that allows users to input topi
   - `service/` - Integration layer between UI and domain logic
 - `app/src/test/kotlin/com/jcraw/sophia/` - Test code
   - `LLMIntegrationTest.kt` - Integration tests for OpenAI API functionality
+- `config/src/main/kotlin/com/jcraw/sophia/config/` - Configuration management
+  - `LLMModels.kt` - LLM model definitions and pricing information
+  - `PhilosopherPrompts.kt` - All philosopher system prompts and conversation templates
+  - `LLMBridge.kt` - Bridge between config and llm-wrapper modules
 - `discussion/src/main/kotlin/com/jcraw/sophia/discussion/` - Domain logic
   - `Models.kt` - Domain models (Philosopher, ConversationState, etc.)
   - `ConversationEngine.kt` - Core conversation orchestration
@@ -56,7 +63,8 @@ Sophia is a philosophical discussion application that allows users to input topi
 ### Dependencies
 - **Root**: JUnit 5 (jupiter) for testing
 - **App**: Compose Multiplatform, Material 3, discussion module, Kotlin 2.0.21, Coroutines
-- **Discussion**: LLM wrapper, Kotlinx Coroutines, Kotlinx Serialization
+- **Config**: LLM model definitions, prompts, and configuration settings
+- **Discussion**: Config module, LLM wrapper, Kotlinx Coroutines, Kotlinx Serialization
 - **LLM Wrapper**: Kotlinx Serialization, Ktor Client for OpenAI API calls
 
 ## Setup
@@ -132,12 +140,31 @@ The application includes comprehensive logging for troubleshooting:
 - Features 6 predefined philosophers: Socrates, Nietzsche, Kant, Aristotle, Sartre, Confucius
 - Group ID: `com.jcraw`
 
+## Configuration Management
+
+The **config module** centralizes all LLM-related configuration:
+
+### LLM Models
+- **LLMModels.kt** - Defines available models with pricing information
+- **LLMConfig.defaultPhilosophicalModel** - Currently set to GPT4_1Nano for cost efficiency
+- **LLMBridge** - Converts config models to llm-wrapper models to avoid circular dependencies
+
+### Prompts
+- **PhilosopherPrompts** - All philosopher system prompts in one location
+- **ConversationPrompts** - Templates for initial and follow-up conversation prompts
+- Easy to modify prompts for all philosophers in a single file
+
+### Benefits
+- **Centralized Control** - Change models or prompts in one place
+- **Cost Management** - Easy to switch between models for different use cases
+- **Future Expansion** - Ready for additional LLM functionality beyond discussions
+
 ## Architecture
 
 The application follows unidirectional data flow with immutable state:
 - **ConversationStateManager** - Manages conversation state transitions
-- **ConversationEngine** - Orchestrates philosopher turns and LLM interactions
-- **PhilosopherRepository** - Provides philosopher personalities and system prompts
+- **ConversationEngine** - Orchestrates philosopher turns and LLM interactions (uses config module)
+- **PhilosopherRepository** - Provides philosopher data (uses config prompts)
 - **PhilosopherService** - Integration layer between UI and core logic
 - UI observes state changes through StateFlow and sends events to service
 ## Additional Guidelines

@@ -1,7 +1,9 @@
 package com.jcraw.sophia.discussion
 
 import com.jcraw.llm.LLMClient
-import com.jcraw.llm.OpenAIModel
+import com.jcraw.sophia.config.LLMConfig
+import com.jcraw.sophia.config.LLMBridge
+import com.jcraw.sophia.config.ConversationPrompts
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.delay
 import java.time.Instant
@@ -45,14 +47,15 @@ class ConversationEngine(
 
             println("📝 System prompt length: ${philosopher.systemPrompt.length} chars")
             println("📝 User context length: ${prompt.length} chars")
-            println("🎯 Using model: ${OpenAIModel.GPT4_1Nano.modelId}")
+            val model = LLMBridge.toOpenAIModel(LLMConfig.defaultPhilosophicalModel)
+            println("🎯 Using model: ${model.modelId}")
 
             val response = llmClient.chatCompletion(
-                model = OpenAIModel.GPT4_1Nano, // Using cost-effective model as per guidelines
+                model = model,
                 systemPrompt = philosopher.systemPrompt,
                 userContext = prompt,
                 maxTokens = currentState.config.maxWordsPerResponse * 2, // Rough conversion
-                temperature = 0.8 // Higher creativity for philosophical discussions
+                temperature = LLMConfig.CREATIVE_TEMPERATURE
             )
 
             println("✅ Received LLM response for ${philosopher.name}")
@@ -128,21 +131,10 @@ class ConversationEngine(
         topic: String,
         context: String
     ): String {
-        return buildString {
-            appendLine("Topic for discussion: \"$topic\"")
-            appendLine()
-
-            if (context.contains("Previous contributions")) {
-                appendLine(context)
-                appendLine("Please respond to the discussion as ${philosopher.name}. ")
-                appendLine("Build upon or challenge the previous points made, staying true to your philosophical perspective. ")
-                appendLine("Keep your response concise but substantive (around 100-150 words).")
-            } else {
-                appendLine(context)
-                appendLine("Please provide your initial thoughts on this topic as ${philosopher.name}. ")
-                appendLine("Share your philosophical perspective and approach to this question. ")
-                appendLine("Keep your response concise but substantive (around 100-150 words).")
-            }
+        return if (context.contains("Previous contributions")) {
+            ConversationPrompts.buildFollowUpPrompt(philosopher.name, topic, context)
+        } else {
+            ConversationPrompts.buildInitialPrompt(philosopher.name, topic)
         }
     }
 
