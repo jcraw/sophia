@@ -27,6 +27,7 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
+    implementation(project(":discussion"))
     implementation(project(":llm-wrapper"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 

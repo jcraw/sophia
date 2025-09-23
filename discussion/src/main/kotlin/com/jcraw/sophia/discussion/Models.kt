@@ -1,4 +1,4 @@
-package com.jcraw.sophia.philosophers
+package com.jcraw.sophia.discussion
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

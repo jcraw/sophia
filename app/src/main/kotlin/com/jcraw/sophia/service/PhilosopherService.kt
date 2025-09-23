@@ -2,7 +2,7 @@ package com.jcraw.sophia.service
 
 import com.jcraw.llm.LLMClient
 import com.jcraw.llm.OpenAIClient
-import com.jcraw.sophia.philosophers.*
+import com.jcraw.sophia.discussion.*
 import kotlinx.coroutines.flow.StateFlow
 
 class PhilosopherService(

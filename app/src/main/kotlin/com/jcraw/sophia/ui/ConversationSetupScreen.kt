@@ -9,8 +9,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.jcraw.sophia.philosophers.Philosopher
-import com.jcraw.sophia.philosophers.ConversationConfig
+import com.jcraw.sophia.discussion.Philosopher
+import com.jcraw.sophia.discussion.ConversationConfig
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

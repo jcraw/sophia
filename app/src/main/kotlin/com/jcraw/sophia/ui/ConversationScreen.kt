@@ -10,8 +10,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.jcraw.sophia.philosophers.ConversationState
-import com.jcraw.sophia.philosophers.PhilosopherContribution
+import com.jcraw.sophia.discussion.ConversationState
+import com.jcraw.sophia.discussion.PhilosopherContribution
 
 @Composable
 fun ConversationScreen(

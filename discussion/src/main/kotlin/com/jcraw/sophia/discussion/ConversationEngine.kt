@@ -1,4 +1,4 @@
-package com.jcraw.sophia.philosophers
+package com.jcraw.sophia.discussion
 
 import com.jcraw.llm.LLMClient
 import com.jcraw.llm.OpenAIModel

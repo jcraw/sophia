@@ -1,4 +1,4 @@
-package com.jcraw.sophia.philosophers
+package com.jcraw.sophia.discussion
 
 interface PhilosopherRepository {
     fun getAllPhilosophers(): List<Philosopher>

@@ -3,7 +3,7 @@ package com.jcraw.sophia
 import com.jcraw.llm.LLMClient
 import com.jcraw.llm.OpenAIClient
 import com.jcraw.llm.OpenAIModel
-import com.jcraw.sophia.philosophers.*
+import com.jcraw.sophia.discussion.*
 import com.jcraw.sophia.service.PhilosopherService
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking

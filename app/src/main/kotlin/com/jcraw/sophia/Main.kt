@@ -8,7 +8,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import com.jcraw.sophia.philosophers.ConversationState
+import com.jcraw.sophia.discussion.ConversationState
 import com.jcraw.sophia.service.PhilosopherService
 import com.jcraw.sophia.ui.ConversationScreen
 import com.jcraw.sophia.ui.ConversationSetupScreen
