@@ -23,33 +23,40 @@ Sophia is a philosophical discussion application that allows users to input topi
 - `./gradlew compileJava` - Compile main Java sources
 - `./gradlew compileTestJava` - Compile test sources
 - `./gradlew :app:compileKotlin` - Compile Kotlin sources in app module
+- `./gradlew :discussion:compileKotlin` - Compile Kotlin sources in discussion module
 
 ## Project Structure
 
 ### Key Configuration Files
 - `build.gradle.kts` - Main build configuration with Java plugin and JUnit 5 dependencies
-- `settings.gradle.kts` - Project settings with app module
+- `settings.gradle.kts` - Project settings with app, discussion, and llm-wrapper modules
 - `app/build.gradle.kts` - App module build configuration with Compose Multiplatform
+- `discussion/build.gradle.kts` - Discussion module build configuration
 - `gradle/wrapper/` - Gradle wrapper (version 8.14)
 
 ### Modules
 - **Root module** - Base Java project with JUnit 5
-- **app module** - Main application with philosopher conversation system and Compose UI
+- **app module** - UI layer with Compose components and service integration
+- **discussion module** - Domain logic for philosophical conversations and philosopher management
 - **llm-wrapper module** - Wrapper around external LLM client for OpenAI integration
 
 ### Source Structure
 - `src/main/java/` - Root module Java sources (currently empty)
-- `app/src/main/kotlin/com/jcraw/sophia/` - Main application code
-  - `philosophers/` - Domain models, conversation engine, and philosopher repository
+- `app/src/main/kotlin/com/jcraw/sophia/` - UI application code
   - `ui/` - Compose UI components for setup and conversation screens
-  - `service/` - Integration layer between UI and core logic
+  - `service/` - Integration layer between UI and domain logic
 - `app/src/test/kotlin/com/jcraw/sophia/` - Test code
   - `LLMIntegrationTest.kt` - Integration tests for OpenAI API functionality
+- `discussion/src/main/kotlin/com/jcraw/sophia/discussion/` - Domain logic
+  - `Models.kt` - Domain models (Philosopher, ConversationState, etc.)
+  - `ConversationEngine.kt` - Core conversation orchestration
+  - `PhilosopherRepository.kt` - Philosopher data and personalities
 - `llm-wrapper/src/main/kotlin/` - LLM client implementation (copied from external project)
 
 ### Dependencies
 - **Root**: JUnit 5 (jupiter) for testing
-- **App**: Compose Multiplatform, Material 3, Kotlin 2.0.21, Coroutines
+- **App**: Compose Multiplatform, Material 3, discussion module, Kotlin 2.0.21, Coroutines
+- **Discussion**: LLM wrapper, Kotlinx Coroutines, Kotlinx Serialization
 - **LLM Wrapper**: Kotlinx Serialization, Ktor Client for OpenAI API calls
 
 ## Setup
