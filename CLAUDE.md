@@ -157,6 +157,9 @@ The application includes comprehensive logging for troubleshooting:
 - Main entry point: `com.jcraw.sophia.MainKt` in app module
 - Uses GPT4_1Nano model for cost-effective philosophical discussions
 - Features 6 predefined philosophers: Socrates, Nietzsche, Kant, Aristotle, Sartre, Confucius
+- **Modern Split-Panel UI** with conversation history sidebar and main content area
+- **Conversation Persistence** - All discussions automatically saved as JSON in `conversations/` directory
+- **Future-Ready Architecture** - Designed for upcoming analysis, script, and video generation features
 - Group ID: `com.jcraw`
 
 ## Configuration Management
@@ -178,14 +181,52 @@ The **config module** centralizes all LLM-related configuration:
 - **Cost Management** - Easy to switch between models for different use cases
 - **Future Expansion** - Ready for additional LLM functionality beyond discussions
 
+## User Interface
+
+### Layout Design
+The application features a modern split-panel interface:
+- **Window Size**: 1400x800px to accommodate the split layout
+- **History Sidebar** (320px): Left panel showing conversation history with status indicators
+- **Main Content Area**: Right panel with dynamic content based on current mode
+
+### UI Modes
+1. **Setup Mode** - New conversation configuration
+   - Philosopher selection with descriptions
+   - Topic input and discussion parameters
+   - Rounds and word limit configuration
+
+2. **Current Conversation Mode** - Active discussion in progress
+   - Real-time conversation display with philosopher contributions
+   - Progress indicators and thinking animations
+   - Auto-scroll to latest contributions
+
+3. **Historic Conversation Mode** - Past conversation viewing
+   - Complete conversation replay with metadata
+   - Participant information and discussion summary
+   - "Restart Similar" functionality for easy continuation
+
+### History Management
+- **Persistent Storage** - All conversations automatically saved to `conversations/` directory
+- **Status Tracking** - Visual indicators for completed, active, and error states
+- **Conversation Preview** - Topic, participant count, contribution count, and dates
+- **Quick Actions** - Delete conversations and create new discussions
+- **Auto-Save** - Conversations automatically persist when completed or interrupted
+
 ## Architecture
 
 The application follows unidirectional data flow with immutable state:
 - **ConversationStateManager** - Manages conversation state transitions
 - **ConversationEngine** - Orchestrates philosopher turns and LLM interactions (uses config module)
 - **PhilosopherRepository** - Provides philosopher data (uses config prompts)
-- **PhilosopherService** - Integration layer between UI and core logic
+- **PhilosopherService** - Integration layer between UI and core logic with history management
+- **SimpleConversationStorage** - JSON-based persistence for conversation history
 - UI observes state changes through StateFlow and sends events to service
+
+### Future Expansion Ready
+The UI architecture is designed to support upcoming features:
+- **Analysis & Writeups** - Historic conversations ready for AI-powered analysis
+- **Script Conversion** - Conversations can be formatted into scripts for different media
+- **Video Generation** - Integration points ready for video creation from discussions
 ## Additional Guidelines
 
 Always read and follow the guidelines in CLAUDE_GUIDELINES.md before starting any work.
