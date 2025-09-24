@@ -6,6 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Sophia is a philosophical discussion application that allows users to input topics and watch AI-powered philosophers engage in multi-round conversations. Built with Kotlin and Compose Multiplatform for desktop, it integrates with OpenAI's models to simulate conversations between famous historical philosophers.
 
+### Key Features
+- **Modern UI** - Split-panel interface with conversation history sidebar and main content area
+- **Conversation History** - Persistent storage and browsing of all past philosophical discussions
+- **Multi-Philosopher Discussions** - Support for 1-6 philosophers in simultaneous conversations
+- **Flexible Configuration** - Adjustable rounds, word limits, and participant selection
+- **Future-Ready Architecture** - Designed for upcoming analysis, script conversion, and video generation features
+
 ## Common Commands
 
 ### Building and Testing
@@ -47,8 +54,14 @@ Sophia is a philosophical discussion application that allows users to input topi
 ### Source Structure
 - `src/main/java/` - Root module Java sources (currently empty)
 - `app/src/main/kotlin/com/jcraw/sophia/` - UI application code
-  - `ui/` - Compose UI components for setup and conversation screens
+  - `ui/` - Compose UI components with modern split-panel design
+    - `MainScreen.kt` - Main application layout with history sidebar
+    - `ConversationHistoryScreen.kt` - History panel with conversation list and management
+    - `HistoricConversationView.kt` - Detailed view of past conversations
+    - `ConversationSetupScreen.kt` - New conversation configuration
+    - `ConversationScreen.kt` - Live conversation display
   - `service/` - Integration layer between UI and domain logic
+    - `PhilosopherService.kt` - Enhanced with conversation history management
 - `app/src/test/kotlin/com/jcraw/sophia/` - Test code
   - `LLMIntegrationTest.kt` - Integration tests for OpenAI API functionality
 - `config/src/main/kotlin/com/jcraw/sophia/config/` - Configuration management
@@ -57,6 +70,8 @@ Sophia is a philosophical discussion application that allows users to input topi
   - `LLMBridge.kt` - Bridge between config and llm-wrapper modules
 - `database/src/main/kotlin/com/jcraw/sophia/database/` - Conversation persistence
   - `SimpleConversationStorage.kt` - JSON-based conversation storage with async operations
+  - `entities/ConversationEntities.kt` - Database entity definitions for structured storage
+  - `repository/ConversationRepository.kt` - Repository pattern for conversation data access
 - `discussion/src/main/kotlin/com/jcraw/sophia/discussion/` - Domain logic
   - `Models.kt` - Domain models (Philosopher, ConversationState, etc.)
   - `ConversationEngine.kt` - Core conversation orchestration
@@ -65,9 +80,9 @@ Sophia is a philosophical discussion application that allows users to input topi
 
 ### Dependencies
 - **Root**: JUnit 5 (jupiter) for testing
-- **App**: Compose Multiplatform, Material 3, discussion module, Kotlin 2.0.21, Coroutines
+- **App**: Compose Multiplatform, Material 3, discussion module, database module, Kotlin 2.0.21, Coroutines, Kotlinx DateTime
 - **Config**: LLM model definitions, prompts, and configuration settings
-- **Database**: Discussion module, Kotlinx Serialization, Kotlinx Coroutines for JSON-based storage
+- **Database**: Discussion module, Kotlinx Serialization, Kotlinx Coroutines, Kotlinx DateTime for JSON-based storage
 - **Discussion**: Config module, LLM wrapper, Kotlinx Coroutines, Kotlinx Serialization
 - **LLM Wrapper**: Kotlinx Serialization, Ktor Client for OpenAI API calls
 
