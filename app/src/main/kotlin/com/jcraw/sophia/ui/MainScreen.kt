@@ -17,6 +17,7 @@ sealed class MainScreenMode {
     data object Setup : MainScreenMode()
     data object CurrentConversation : MainScreenMode()
     data class ViewHistoricConversation(val conversationId: String) : MainScreenMode()
+    data class ViewSummary(val summaryId: String, val originalConversationId: String) : MainScreenMode()
 }
 
 @Composable
@@ -28,13 +29,24 @@ fun MainScreen(
     var conversations by remember { mutableStateOf<List<StoredConversation>>(emptyList()) }
     var selectedConversationId by remember { mutableStateOf<String?>(null) }
     var selectedHistoricConversation by remember { mutableStateOf<StoredConversation?>(null) }
+    var selectedSummary by remember { mutableStateOf<com.jcraw.sophia.database.StoredConversationSummary?>(null) }
+    var conversationSummaries by remember { mutableStateOf<Map<String, List<com.jcraw.sophia.database.StoredConversationSummary>>>(emptyMap()) }
 
     val scope = rememberCoroutineScope()
     val conversationState by philosopherService.conversationState.collectAsState()
 
-    // Load conversations on startup and refresh when needed
+    // Load conversations and summaries on startup and refresh when needed
     LaunchedEffect(Unit) {
         conversations = philosopherService.getAllConversations()
+        // Load summaries for all conversations
+        val summariesMap = mutableMapOf<String, List<com.jcraw.sophia.database.StoredConversationSummary>>()
+        conversations.forEach { conversation ->
+            val summariesForConversation = philosopherService.getSummariesForConversation(conversation.id)
+            if (summariesForConversation.isNotEmpty()) {
+                summariesMap[conversation.id] = summariesForConversation
+            }
+        }
+        conversationSummaries = summariesMap
     }
 
     // Auto-save conversations when they complete
@@ -61,20 +73,40 @@ fun MainScreen(
                 philosopherService.resetConversation()
                 selectedConversationId = null
                 selectedHistoricConversation = null
+                selectedSummary = null
                 mode = MainScreenMode.Setup
             },
             onDeleteConversation = { conversationId ->
                 scope.launch {
                     if (philosopherService.deleteConversation(conversationId)) {
                         conversations = philosopherService.getAllConversations()
+                        // Refresh summaries
+                        val summariesMap = mutableMapOf<String, List<com.jcraw.sophia.database.StoredConversationSummary>>()
+                        conversations.forEach { conversation ->
+                            val summariesForConversation = philosopherService.getSummariesForConversation(conversation.id)
+                            if (summariesForConversation.isNotEmpty()) {
+                                summariesMap[conversation.id] = summariesForConversation
+                            }
+                        }
+                        conversationSummaries = summariesMap
+
                         if (selectedConversationId == conversationId) {
                             selectedConversationId = null
                             selectedHistoricConversation = null
+                            selectedSummary = null
                             mode = MainScreenMode.Setup
                         }
                     }
                 }
             },
+            onSummarySelect = { summaryId, originalConversationId ->
+                scope.launch {
+                    selectedSummary = philosopherService.loadSummary(summaryId)
+                    selectedHistoricConversation = philosopherService.loadConversation(originalConversationId)
+                    mode = MainScreenMode.ViewSummary(summaryId, originalConversationId)
+                }
+            },
+            conversationSummaries = conversationSummaries,
             modifier = Modifier.width(320.dp)
         )
 
@@ -132,8 +164,79 @@ fun MainScreen(
                                 mode = MainScreenMode.CurrentConversation
                             }
                         },
+                        onSummarizeForVideo = { storedConversation ->
+                            scope.launch {
+                                try {
+                                    val summaryId = philosopherService.summarizeConversationAndGetId(storedConversation)
+                                    val summary = philosopherService.loadSummary(summaryId)
+                                    if (summary != null) {
+                                        selectedSummary = summary
+                                        mode = MainScreenMode.ViewSummary(summaryId, storedConversation.id)
+
+                                        // Refresh summaries in sidebar
+                                        val updatedSummariesForConversation = philosopherService.getSummariesForConversation(storedConversation.id)
+                                        conversationSummaries = conversationSummaries + (storedConversation.id to updatedSummariesForConversation)
+
+                                        println("✅ Summarization complete! Navigating to summary view.")
+                                    }
+                                } catch (e: Exception) {
+                                    println("❌ Summarization failed: ${e.message}")
+                                    e.printStackTrace()
+                                }
+                            }
+                        },
                         modifier = Modifier.weight(1f)
                     )
+                } ?: run {
+                    // Loading or error state
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .padding(32.dp),
+                        contentAlignment = androidx.compose.ui.Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
+
+            is MainScreenMode.ViewSummary -> {
+                selectedSummary?.let { summary ->
+                    selectedHistoricConversation?.let { originalConversation ->
+                        SummaryViewScreen(
+                            summary = summary,
+                            originalConversation = originalConversation,
+                            onNewConversation = {
+                                philosopherService.resetConversation()
+                                selectedConversationId = null
+                                selectedHistoricConversation = null
+                                selectedSummary = null
+                                mode = MainScreenMode.Setup
+                            },
+                            onStartSimilar = { topic, participants ->
+                                val config = ConversationConfig(
+                                    topic = topic,
+                                    participants = participants,
+                                    maxRounds = 3, // Default for summaries
+                                    maxWordsPerResponse = 50 // Default for summaries
+                                )
+                                scope.launch {
+                                    selectedConversationId = null
+                                    selectedHistoricConversation = null
+                                    selectedSummary = null
+                                    philosopherService.startConversation(config)
+                                    mode = MainScreenMode.CurrentConversation
+                                }
+                            },
+                            onViewOriginal = {
+                                // Navigate back to original conversation
+                                val currentMode = mode as MainScreenMode.ViewSummary
+                                mode = MainScreenMode.ViewHistoricConversation(currentMode.originalConversationId)
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 } ?: run {
                     // Loading or error state
                     Box(

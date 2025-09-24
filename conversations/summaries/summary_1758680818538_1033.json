@@ -1,0 +1,76 @@
+{
+    "id": "summary_1758680818538_1033",
+    "originalConversationId": "conv_1758677455832_3097",
+    "originalTopic": "what truly makes a great parent?",
+    "condensedTopic": "What defines greatness in parenting?",
+    "participants": [
+        "Socrates",
+        "Jean-Paul Sartre",
+        "Confucius"
+    ],
+    "rounds": [
+        {
+            "roundNumber": 1,
+            "contributions": [
+                {
+                    "philosopherName": "Socrates",
+                    "response": "Is greatness in parenting about wealth, virtue, or impact on the soul? If a parent teaches kindness but the child is unkind, is the parent less great? Perhaps true greatness lies in pursuing moral excellence and fostering goodness within another.",
+                    "wordCount": 45
+                },
+                {
+                    "philosopherName": "Jean-Paul Sartre",
+                    "response": "Greatness isn’t a fixed ideal. Parenting means accepting both parent and child’s radical freedom. Influence is limited; true greatness is authentic engagement—helping the child embrace their own existence, not imposing predetermined goodness.",
+                    "wordCount": 44
+                },
+                {
+                    "philosopherName": "Confucius",
+                    "response": "Great parents embody *ren*—benevolence—through moral example and *li*—proper conduct. They nurture innate goodness gently, fostering harmony and respect. Without moral cultivation, influence is shallow; with it, greatness shines through character.",
+                    "wordCount": 43
+                }
+            ]
+        },
+        {
+            "roundNumber": 2,
+            "contributions": [
+                {
+                    "philosopherName": "Socrates",
+                    "response": "Can virtue be handed down or must it be self-cultivated? Even with moral example, the child’s freedom to choose is key. Is greatness in imposing virtue or nurturing the child’s own journey toward goodness?",
+                    "wordCount": 38
+                },
+                {
+                    "philosopherName": "Jean-Paul Sartre",
+                    "response": "Imposing goodness denies freedom. Greatness is accepting that each must forge values amid absurdity. A good parent respects the child’s freedom, fostering choice and authentic becoming, not coercion.",
+                    "wordCount": 37
+                },
+                {
+                    "philosopherName": "Confucius",
+                    "response": "Moral example and *li* remain essential. A parent’s patience and humility create space for growth. Freedom doesn’t negate example; it highlights nurturing innate goodness through virtue and respect.",
+                    "wordCount": 37
+                }
+            ]
+        },
+        {
+            "roundNumber": 3,
+            "contributions": [
+                {
+                    "philosopherName": "Socrates",
+                    "response": "If greatness depends on influence, how do we honor the child’s moral judgment? Perhaps true greatness is humility—knowing when to guide and when to step back, allowing the child to seek virtue independently.",
+                    "wordCount": 39
+                },
+                {
+                    "philosopherName": "Jean-Paul Sartre",
+                    "response": "Greatness is embracing freedom—parent’s and child’s. Stepping back respects that moral self-discovery can’t be imposed. Authentic love means honesty about limits and fostering freedom amid life’s absurdity.",
+                    "wordCount": 39
+                },
+                {
+                    "philosopherName": "Confucius",
+                    "response": "A great parent is like water—nurturing virtue subtly. Respecting freedom means knowing when to guide and when to step back. Embodying *ren* creates harmony where innate goodness naturally flourishes.",
+                    "wordCount": 37
+                }
+            ]
+        }
+    ],
+    "videoNotes": "This conversation distills profound views on parenting—from Socrates’ quest for moral excellence, Sartre’s radical freedom and authenticity, to Confucius’ harmony through virtue and example. The sharp contrasts and complementary insights create engaging, quotable exchanges perfect for short, thought-provoking videos.",
+    "createdAt": "2025-09-24T02:26:58.538518774Z",
+    "totalWordCount": 359
+}

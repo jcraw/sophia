@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,6 +27,7 @@ fun HistoricConversationView(
     conversation: StoredConversation,
     onNewConversation: () -> Unit,
     onStartSimilar: (String, List<Philosopher>) -> Unit,
+    onSummarizeForVideo: (StoredConversation) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxSize()) {
@@ -33,7 +35,8 @@ fun HistoricConversationView(
         HistoricConversationHeader(
             conversation = conversation,
             onNewConversation = onNewConversation,
-            onStartSimilar = onStartSimilar
+            onStartSimilar = onStartSimilar,
+            onSummarizeForVideo = onSummarizeForVideo
         )
 
         HorizontalDivider()
@@ -76,6 +79,7 @@ private fun HistoricConversationHeader(
     conversation: StoredConversation,
     onNewConversation: () -> Unit,
     onStartSimilar: (String, List<Philosopher>) -> Unit,
+    onSummarizeForVideo: (StoredConversation) -> Unit,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
@@ -95,6 +99,21 @@ private fun HistoricConversationHeader(
             }
         },
         actions = {
+            // Only show summarize button for completed conversations
+            if (conversation.status == "completed") {
+                TextButton(
+                    onClick = { onSummarizeForVideo(conversation) }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Create Summary")
+                }
+            }
+
             TextButton(
                 onClick = {
                     val participants = conversation.participants.map { it.toPhilosopher() }

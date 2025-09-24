@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,6 +27,8 @@ fun ConversationHistoryPanel(
     onConversationSelect: (String) -> Unit,
     onNewConversation: () -> Unit,
     onDeleteConversation: (String) -> Unit,
+    onSummarySelect: ((String, String) -> Unit)? = null, // summaryId, originalConversationId
+    conversationSummaries: Map<String, List<com.jcraw.sophia.database.StoredConversationSummary>> = emptyMap(),
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -78,7 +81,9 @@ fun ConversationHistoryPanel(
                             conversation = conversation,
                             isSelected = conversation.id == selectedConversationId,
                             onSelect = { onConversationSelect(conversation.id) },
-                            onDelete = { onDeleteConversation(conversation.id) }
+                            onDelete = { onDeleteConversation(conversation.id) },
+                            summaries = conversationSummaries[conversation.id] ?: emptyList(),
+                            onSummarySelect = onSummarySelect
                         )
                     }
                 }
@@ -93,6 +98,8 @@ private fun ConversationHistoryItem(
     isSelected: Boolean,
     onSelect: () -> Unit,
     onDelete: () -> Unit,
+    summaries: List<com.jcraw.sophia.database.StoredConversationSummary>,
+    onSummarySelect: ((String, String) -> Unit)?,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -159,6 +166,37 @@ private fun ConversationHistoryItem(
                             imageVector = Icons.Default.Delete,
                             contentDescription = "Delete Conversation",
                             modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+            }
+
+            // Show summaries if available
+            if (summaries.isNotEmpty() && onSummarySelect != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Column {
+                    Text(
+                        text = "Summaries (${summaries.size})",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    summaries.take(2).forEach { summary -> // Show max 2 summaries
+                        SummaryChip(
+                            summary = summary,
+                            onClick = { onSummarySelect(summary.id, conversation.id) }
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                    }
+
+                    if (summaries.size > 2) {
+                        Text(
+                            text = "+${summaries.size - 2} more",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -245,4 +283,35 @@ private fun formatTime(hour: Int, minute: Int): String {
     val amPm = if (hour >= 12) "PM" else "AM"
     val displayHour = if (hour > 12) hour - 12 else if (hour == 0) 12 else hour
     return "$displayHour:${minute.toString().padStart(2, '0')} $amPm"
+}
+
+@Composable
+private fun SummaryChip(
+    summary: com.jcraw.sophia.database.StoredConversationSummary,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier,
+        shape = MaterialTheme.shapes.small,
+        color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.8f),
+        contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.PlayArrow,
+                contentDescription = null,
+                modifier = Modifier.size(12.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "${summary.rounds.size}R • ${summary.totalWordCount}W",
+                style = MaterialTheme.typography.labelSmall
+            )
+        }
+    }
 }

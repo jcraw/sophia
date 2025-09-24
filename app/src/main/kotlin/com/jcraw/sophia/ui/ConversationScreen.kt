@@ -45,6 +45,22 @@ fun ConversationScreen(
                 )
             }
 
+            is ConversationState.Summarizing -> {
+                EmptyStateMessage(
+                    message = "Creating video summary...",
+                    onAction = onNewConversation,
+                    actionText = "New Discussion"
+                )
+            }
+
+            is ConversationState.SummarizationComplete -> {
+                EmptyStateMessage(
+                    message = "Summary created! Check the conversation history.",
+                    onAction = onNewConversation,
+                    actionText = "New Discussion"
+                )
+            }
+
             is ConversationState.Error -> {
                 ErrorStateMessage(
                     message = state.message,

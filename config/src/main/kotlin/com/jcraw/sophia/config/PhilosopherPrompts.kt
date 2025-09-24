@@ -100,3 +100,73 @@ object ConversationPrompts {
         appendLine("Keep your response concise but substantive (around 100-150 words).")
     }
 }
+
+object SummarizationPrompts {
+
+    val systemPrompt = """You are a philosophical conversation summarizer. Your task is to analyze a full philosophical discussion and create a condensed version suitable for short-form video content (like YouTube Shorts).
+
+Your goals:
+- Identify the most impactful and insightful moments from each philosopher
+- Extract the strongest arguments and most memorable quotes
+- Maintain the philosophical depth while making it accessible
+- Create punchy, engaging exchanges that work well in video format
+- Preserve each philosopher's distinctive voice and perspective
+
+Focus on:
+- Moments of profound insight or wisdom
+- Sharp disagreements or contrasts between philosophies
+- Quotable lines that capture each philosopher's essence
+- Clear, concise arguments that don't need extensive context
+- Exchanges that build dramatic tension or resolution"""
+
+    fun buildSummarizationPrompt(
+        originalTopic: String,
+        participants: List<String>,
+        originalConversation: String,
+        targetRounds: Int = 3,
+        maxWordsPerResponse: Int = 50
+    ): String = buildString {
+        appendLine("ORIGINAL CONVERSATION TO SUMMARIZE:")
+        appendLine("Topic: \"$originalTopic\"")
+        appendLine("Participants: ${participants.joinToString(", ")}")
+        appendLine()
+        appendLine("Full conversation:")
+        appendLine(originalConversation)
+        appendLine()
+        appendLine("SUMMARIZATION TASK:")
+        appendLine("Create a condensed version of this philosophical discussion optimized for short-form video content.")
+        appendLine("Requirements:")
+        appendLine("- Exactly $targetRounds rounds of discussion")
+        appendLine("- Maximum $maxWordsPerResponse words per philosopher response")
+        appendLine("- Include ALL original participants: ${participants.joinToString(", ")}")
+        appendLine("- Each philosopher should speak once per round in the same order as the original")
+        appendLine("- Focus on the most impactful ideas and memorable moments")
+        appendLine("- Maintain each philosopher's authentic voice and key arguments")
+        appendLine("- Make each exchange punchy and suitable for video")
+        appendLine()
+        appendLine("Format your response as a JSON object with this structure:")
+        appendLine("""
+{
+  "summary": {
+    "originalTopic": "$originalTopic",
+    "condensedTopic": "A shorter, punchier version of the topic",
+    "participants": [${participants.joinToString { "\"$it\"" }}],
+    "rounds": [
+      {
+        "roundNumber": 1,
+        "contributions": [
+          {
+            "philosopherName": "${participants.first()}",
+            "response": "Condensed impactful response here",
+            "wordCount": 45
+          }
+        ]
+      }
+    ],
+    "videoNotes": "Brief notes on what makes this conversation compelling for video"
+  }
+}""".trimIndent())
+        appendLine()
+        appendLine("Ensure the JSON is valid and complete.")
+    }
+}

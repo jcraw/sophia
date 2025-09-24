@@ -42,10 +42,37 @@ data class StoredContribution(
     val wordCount: Int
 )
 
+@Serializable
+data class StoredConversationSummary(
+    val id: String,
+    val originalConversationId: String,
+    val originalTopic: String,
+    val condensedTopic: String,
+    val participants: List<String>,
+    val rounds: List<StoredSummaryRound>,
+    val videoNotes: String,
+    val createdAt: String,
+    val totalWordCount: Int
+)
+
+@Serializable
+data class StoredSummaryRound(
+    val roundNumber: Int,
+    val contributions: List<StoredSummaryContribution>
+)
+
+@Serializable
+data class StoredSummaryContribution(
+    val philosopherName: String,
+    val response: String,
+    val wordCount: Int
+)
+
 class SimpleConversationStorage(
     private val storageDirectory: String = "conversations"
 ) {
     private val mutex = Mutex()
+    private val summariesDirectory = "$storageDirectory/summaries"
     private val json = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
@@ -53,6 +80,7 @@ class SimpleConversationStorage(
 
     init {
         File(storageDirectory).mkdirs()
+        File(summariesDirectory).mkdirs()
     }
 
     suspend fun saveConversation(
@@ -85,6 +113,34 @@ class SimpleConversationStorage(
                     createdAt = Instant.now().toString(),
                     completedAt = Instant.now().toString(),
                     contributions = conversationState.finalContributions.map { it.toStored() }
+                )
+            }
+            is ConversationState.Summarizing -> {
+                // Save the original conversation as completed
+                StoredConversation(
+                    id = id,
+                    topic = conversationState.originalConversation.config.topic,
+                    participants = conversationState.originalConversation.config.participants.map { it.toStored() },
+                    maxRounds = conversationState.originalConversation.config.maxRounds,
+                    maxWordsPerResponse = conversationState.originalConversation.config.maxWordsPerResponse,
+                    status = "completed",
+                    createdAt = Instant.now().toString(),
+                    completedAt = Instant.now().toString(),
+                    contributions = conversationState.originalConversation.finalContributions.map { it.toStored() }
+                )
+            }
+            is ConversationState.SummarizationComplete -> {
+                // Save the original conversation as completed
+                StoredConversation(
+                    id = id,
+                    topic = conversationState.originalConversation.config.topic,
+                    participants = conversationState.originalConversation.config.participants.map { it.toStored() },
+                    maxRounds = conversationState.originalConversation.config.maxRounds,
+                    maxWordsPerResponse = conversationState.originalConversation.config.maxWordsPerResponse,
+                    status = "completed",
+                    createdAt = Instant.now().toString(),
+                    completedAt = Instant.now().toString(),
+                    contributions = conversationState.originalConversation.finalContributions.map { it.toStored() }
                 )
             }
             is ConversationState.Error -> {
@@ -146,8 +202,80 @@ class SimpleConversationStorage(
         file.delete()
     }
 
+    // Summary storage methods
+    suspend fun saveSummary(
+        originalConversationId: String,
+        summary: com.jcraw.sophia.discussion.ConversationSummary
+    ): String = mutex.withLock {
+        val id = generateSummaryId()
+
+        val storedSummary = StoredConversationSummary(
+            id = id,
+            originalConversationId = originalConversationId,
+            originalTopic = summary.originalTopic,
+            condensedTopic = summary.condensedTopic,
+            participants = summary.participants,
+            rounds = summary.rounds.map { round ->
+                StoredSummaryRound(
+                    roundNumber = round.roundNumber,
+                    contributions = round.contributions.map { contrib ->
+                        StoredSummaryContribution(
+                            philosopherName = contrib.philosopherName,
+                            response = contrib.response,
+                            wordCount = contrib.wordCount
+                        )
+                    }
+                )
+            },
+            videoNotes = summary.videoNotes,
+            createdAt = summary.createdAt.toString(),
+            totalWordCount = summary.totalWordCount
+        )
+
+        val file = File(summariesDirectory, "$id.json")
+        file.writeText(json.encodeToString(storedSummary))
+        id
+    }
+
+    suspend fun loadSummary(id: String): StoredConversationSummary? = mutex.withLock {
+        val file = File(summariesDirectory, "$id.json")
+        if (!file.exists()) return@withLock null
+
+        try {
+            json.decodeFromString<StoredConversationSummary>(file.readText())
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    suspend fun getAllSummaries(): List<StoredConversationSummary> = mutex.withLock {
+        File(summariesDirectory).listFiles { _, name -> name.endsWith(".json") }
+            ?.mapNotNull { file ->
+                try {
+                    json.decodeFromString<StoredConversationSummary>(file.readText())
+                } catch (e: Exception) {
+                    null
+                }
+            }
+            ?.sortedByDescending { it.createdAt }
+            ?: emptyList()
+    }
+
+    suspend fun getSummariesForConversation(conversationId: String): List<StoredConversationSummary> {
+        return getAllSummaries().filter { it.originalConversationId == conversationId }
+    }
+
+    suspend fun deleteSummary(id: String): Boolean = mutex.withLock {
+        val file = File(summariesDirectory, "$id.json")
+        file.delete()
+    }
+
     private fun generateId(): String {
         return "conv_${System.currentTimeMillis()}_${(1000..9999).random()}"
+    }
+
+    private fun generateSummaryId(): String {
+        return "summary_${System.currentTimeMillis()}_${(1000..9999).random()}"
     }
 }
 

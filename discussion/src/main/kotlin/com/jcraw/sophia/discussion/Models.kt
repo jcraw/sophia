@@ -45,6 +45,55 @@ data class ConversationConfig(
     }
 }
 
+data class SummarizationConfig(
+    val targetRounds: Int = 3,
+    val maxWordsPerResponse: Int = 50,
+    val preserveOriginalParticipants: Boolean = true
+) {
+    init {
+        require(targetRounds > 0) { "Must have at least one round in summary" }
+        require(maxWordsPerResponse > 0) { "Must allow at least one word per response" }
+    }
+}
+
+data class ConversationSummary(
+    val originalTopic: String,
+    val condensedTopic: String,
+    val participants: List<String>,
+    val rounds: List<SummaryRound>,
+    val videoNotes: String,
+    val createdAt: Instant = Instant.now()
+) {
+    val totalWordCount: Int
+        get() = rounds.flatMap { it.contributions }.sumOf { it.wordCount }
+
+    fun toConversationConfig(philosophers: List<Philosopher>): ConversationConfig {
+        val selectedPhilosophers = participants.mapNotNull { name ->
+            philosophers.find { it.name.equals(name, ignoreCase = true) }
+        }
+        return ConversationConfig(
+            topic = condensedTopic,
+            participants = selectedPhilosophers,
+            maxRounds = rounds.size,
+            maxWordsPerResponse = rounds.flatMap { it.contributions }.maxOfOrNull { it.wordCount } ?: 50
+        )
+    }
+}
+
+data class SummaryRound(
+    val roundNumber: Int,
+    val contributions: List<SummaryContribution>
+) {
+    val wordCount: Int
+        get() = contributions.sumOf { it.wordCount }
+}
+
+data class SummaryContribution(
+    val philosopherName: String,
+    val response: String,
+    val wordCount: Int
+)
+
 sealed class ConversationState {
     data object NotStarted : ConversationState()
     data class InProgress(
@@ -75,6 +124,16 @@ sealed class ConversationState {
         val config: ConversationConfig,
         val rounds: List<ConversationRound>,
         val finalContributions: List<PhilosopherContribution>
+    ) : ConversationState()
+
+    data class Summarizing(
+        val originalConversation: Completed,
+        val config: SummarizationConfig
+    ) : ConversationState()
+
+    data class SummarizationComplete(
+        val originalConversation: Completed,
+        val summary: ConversationSummary
     ) : ConversationState()
 
     data class Error(val message: String, val cause: Throwable? = null) : ConversationState()
@@ -132,6 +191,27 @@ class ConversationStateManager {
 
     fun setError(message: String, cause: Throwable? = null) {
         _state.value = ConversationState.Error(message, cause)
+    }
+
+    fun startSummarization(config: SummarizationConfig) {
+        val currentState = _state.value
+        if (currentState !is ConversationState.Completed) {
+            setError("Can only summarize completed conversations")
+            return
+        }
+        _state.value = ConversationState.Summarizing(currentState, config)
+    }
+
+    fun completeSummarization(summary: ConversationSummary) {
+        val currentState = _state.value
+        if (currentState !is ConversationState.Summarizing) {
+            setError("Not currently summarizing")
+            return
+        }
+        _state.value = ConversationState.SummarizationComplete(
+            originalConversation = currentState.originalConversation,
+            summary = summary
+        )
     }
 
     fun reset() {

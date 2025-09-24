@@ -11,7 +11,9 @@ Sophia is a philosophical discussion application that allows users to input topi
 - **Conversation History** - Persistent storage and browsing of all past philosophical discussions
 - **Multi-Philosopher Discussions** - Support for 1-6 philosophers in simultaneous conversations
 - **Flexible Configuration** - Adjustable rounds, word limits, and participant selection
-- **Future-Ready Architecture** - Designed for upcoming analysis, script conversion, and video generation features
+- **AI-Powered Summarization** - Convert full conversations into video-optimized summaries for YouTube Shorts
+- **Smart Content Management** - Persistent storage for both conversations and summaries with easy access
+- **Video Production Ready** - Summaries designed specifically for short-form video content creation
 
 ## Common Commands
 
@@ -55,9 +57,10 @@ Sophia is a philosophical discussion application that allows users to input topi
 - `src/main/java/` - Root module Java sources (currently empty)
 - `app/src/main/kotlin/com/jcraw/sophia/` - UI application code
   - `ui/` - Compose UI components with modern split-panel design
-    - `MainScreen.kt` - Main application layout with history sidebar
-    - `ConversationHistoryScreen.kt` - History panel with conversation list and management
-    - `HistoricConversationView.kt` - Detailed view of past conversations
+    - `MainScreen.kt` - Main application layout with history sidebar and navigation
+    - `ConversationHistoryScreen.kt` - History panel with conversation list, summary chips, and management
+    - `HistoricConversationView.kt` - Detailed view of past conversations with summarization
+    - `SummaryViewScreen.kt` - Dedicated screen for viewing conversation summaries
     - `ConversationSetupScreen.kt` - New conversation configuration
     - `ConversationScreen.kt` - Live conversation display
   - `service/` - Integration layer between UI and domain logic
@@ -66,15 +69,16 @@ Sophia is a philosophical discussion application that allows users to input topi
   - `LLMIntegrationTest.kt` - Integration tests for OpenAI API functionality
 - `config/src/main/kotlin/com/jcraw/sophia/config/` - Configuration management
   - `LLMModels.kt` - LLM model definitions and pricing information
-  - `PhilosopherPrompts.kt` - All philosopher system prompts and conversation templates
+  - `PhilosopherPrompts.kt` - All philosopher system prompts, conversation templates, and summarization prompts
   - `LLMBridge.kt` - Bridge between config and llm-wrapper modules
 - `database/src/main/kotlin/com/jcraw/sophia/database/` - Conversation persistence
-  - `SimpleConversationStorage.kt` - JSON-based conversation storage with async operations
-  - `entities/ConversationEntities.kt` - Database entity definitions for structured storage
+  - `SimpleConversationStorage.kt` - JSON-based storage for conversations and summaries with async operations
+  - `entities/ConversationEntities.kt` - Database entity definitions for conversations and summaries
   - `repository/ConversationRepository.kt` - Repository pattern for conversation data access
 - `discussion/src/main/kotlin/com/jcraw/sophia/discussion/` - Domain logic
-  - `Models.kt` - Domain models (Philosopher, ConversationState, etc.)
+  - `Models.kt` - Domain models (Philosopher, ConversationState, ConversationSummary, etc.)
   - `ConversationEngine.kt` - Core conversation orchestration
+  - `SummarizationEngine.kt` - AI-powered conversation summarization for video content
   - `PhilosopherRepository.kt` - Philosopher data and personalities
 - `llm-wrapper/src/main/kotlin/` - LLM client implementation (copied from external project)
 
@@ -155,11 +159,12 @@ The application includes comprehensive logging for troubleshooting:
 - Uses Kotlin 2.0.21 with Compose Multiplatform for desktop UI
 - JVM target set to version 21 for compatibility
 - Main entry point: `com.jcraw.sophia.MainKt` in app module
-- Uses GPT4_1Nano model for cost-effective philosophical discussions
+- Uses GPT4_1Nano model for cost-effective philosophical discussions and summarization
 - Features 6 predefined philosophers: Socrates, Nietzsche, Kant, Aristotle, Sartre, Confucius
 - **Modern Split-Panel UI** with conversation history sidebar and main content area
-- **Conversation Persistence** - All discussions automatically saved as JSON in `conversations/` directory
-- **Future-Ready Architecture** - Designed for upcoming analysis, script, and video generation features
+- **Conversation Persistence** - All discussions and summaries automatically saved as JSON in `conversations/` directory
+- **Video Content Creation** - Built-in summarization for YouTube Shorts and social media content
+- **Smart Navigation** - Easy access to summaries through conversation history with visual indicators
 - Group ID: `com.jcraw`
 
 ## Configuration Management
@@ -169,17 +174,20 @@ The **config module** centralizes all LLM-related configuration:
 ### LLM Models
 - **LLMModels.kt** - Defines available models with pricing information
 - **LLMConfig.defaultPhilosophicalModel** - Currently set to GPT4_1Nano for cost efficiency
+- **LLMConfig.summarizationModel** - Also set to GPT4_1Nano for cost-effective summarization
 - **LLMBridge** - Converts config models to llm-wrapper models to avoid circular dependencies
 
 ### Prompts
 - **PhilosopherPrompts** - All philosopher system prompts in one location
 - **ConversationPrompts** - Templates for initial and follow-up conversation prompts
-- Easy to modify prompts for all philosophers in a single file
+- **SummarizationPrompts** - System and user prompts for video-optimized conversation summarization
+- Easy to modify prompts for all philosophers and summarization in single files
 
 ### Benefits
 - **Centralized Control** - Change models or prompts in one place
 - **Cost Management** - Easy to switch between models for different use cases
-- **Future Expansion** - Ready for additional LLM functionality beyond discussions
+- **Video Production Ready** - Specialized prompts for creating YouTube Shorts content
+- **Expandable Framework** - Ready for additional LLM functionality beyond discussions and summarization
 
 ## User Interface
 
@@ -203,30 +211,85 @@ The application features a modern split-panel interface:
 3. **Historic Conversation Mode** - Past conversation viewing
    - Complete conversation replay with metadata
    - Participant information and discussion summary
+   - "Create Summary" button for video content generation
    - "Restart Similar" functionality for easy continuation
 
+4. **Summary View Mode** - Video-optimized conversation summaries
+   - Condensed philosophical discussions for YouTube Shorts
+   - Video production notes and metadata
+   - Navigation between original conversation and summary
+   - Streamlined content optimized for short-form video
+
 ### History Management
-- **Persistent Storage** - All conversations automatically saved to `conversations/` directory
+- **Persistent Storage** - All conversations and summaries automatically saved to `conversations/` directory
 - **Status Tracking** - Visual indicators for completed, active, and error states
 - **Conversation Preview** - Topic, participant count, contribution count, and dates
-- **Quick Actions** - Delete conversations and create new discussions
-- **Auto-Save** - Conversations automatically persist when completed or interrupted
+- **Summary Chips** - Visual indicators showing available summaries with round/word counts
+- **Quick Actions** - Delete conversations, create summaries, and start new discussions
+- **Smart Navigation** - Direct access to summaries from conversation history
+- **Auto-Save** - Conversations and summaries automatically persist when completed
 
 ## Architecture
 
 The application follows unidirectional data flow with immutable state:
-- **ConversationStateManager** - Manages conversation state transitions
+- **ConversationStateManager** - Manages conversation state transitions including summarization
 - **ConversationEngine** - Orchestrates philosopher turns and LLM interactions (uses config module)
+- **SummarizationEngine** - AI-powered conversation condensing for video content
 - **PhilosopherRepository** - Provides philosopher data (uses config prompts)
-- **PhilosopherService** - Integration layer between UI and core logic with history management
-- **SimpleConversationStorage** - JSON-based persistence for conversation history
+- **PhilosopherService** - Integration layer with history management and summarization support
+- **SimpleConversationStorage** - JSON-based persistence for conversations and summaries
 - UI observes state changes through StateFlow and sends events to service
 
-### Future Expansion Ready
-The UI architecture is designed to support upcoming features:
-- **Analysis & Writeups** - Historic conversations ready for AI-powered analysis
-- **Script Conversion** - Conversations can be formatted into scripts for different media
-- **Video Generation** - Integration points ready for video creation from discussions
+### Video Content Creation Features
+The architecture supports complete video production workflow:
+- **AI-Powered Summarization** - Automatic conversion of full conversations to short-form content
+- **Video Production Metadata** - Notes on what makes conversations compelling for video
+- **Flexible Content Management** - Easy access to both original discussions and video summaries
+- **Production Ready Output** - Summaries designed specifically for YouTube Shorts and social media
+
+## Conversation Summarization
+
+Sophia includes a comprehensive AI-powered summarization system designed specifically for creating YouTube Shorts and social media content from philosophical discussions.
+
+### How Summarization Works
+
+1. **Source Content**: Any completed conversation can be summarized
+2. **AI Processing**: Uses GPT4_1Nano with specialized prompts to identify key moments
+3. **Video Optimization**: Focuses on quotable moments, dramatic exchanges, and philosophical insights
+4. **Content Condensing**: Reduces discussions to 3 rounds with ~50 words per response
+5. **Metadata Generation**: Includes video production notes and condensed topics
+
+### Summarization Configuration
+
+- **Model**: Uses `LLMConfig.summarizationModel` (GPT4_1Nano for cost efficiency)
+- **Temperature**: 0.3 for precise yet creative summarization
+- **Default Output**: 3 rounds, 50 words per philosopher response
+- **Customizable**: `SummarizationConfig` allows adjustment of rounds and word limits
+
+### Storage Structure
+
+Summaries are stored separately from conversations:
+- **Location**: `conversations/summaries/` directory
+- **Format**: JSON files with structured metadata
+- **Naming**: `summary_{timestamp}_{random}.json`
+- **Content**: Includes original topic, condensed topic, participants, rounds, video notes
+
+### User Workflow
+
+1. **Create**: Click "Create Summary" on any completed conversation
+2. **Process**: AI analyzes full conversation and generates condensed version
+3. **View**: Automatically navigates to beautiful summary display
+4. **Access**: Summaries appear as chips in conversation history sidebar
+5. **Manage**: Easy navigation between original conversations and summaries
+
+### Video Production Features
+
+- **Condensed Topics**: Shorter, punchier versions of original topics
+- **Production Notes**: AI-generated insights on what makes content video-ready
+- **Word Counts**: Precise tracking for video timing and pacing
+- **Round Structure**: Organized for easy video editing and flow
+- **Participant Metadata**: Ready for video credits and descriptions
+
 ## Additional Guidelines
 
 Always read and follow the guidelines in CLAUDE_GUIDELINES.md before starting any work.
