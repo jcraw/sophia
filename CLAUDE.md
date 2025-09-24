@@ -40,6 +40,7 @@ Sophia is a philosophical discussion application that allows users to input topi
 - **Root module** - Base Java project with JUnit 5
 - **app module** - UI layer with Compose components and service integration
 - **config module** - Centralized configuration for LLM models and prompts
+- **database module** - Conversation persistence using JSON file storage
 - **discussion module** - Domain logic for philosophical conversations and philosopher management
 - **llm-wrapper module** - Wrapper around external LLM client for OpenAI integration
 
@@ -54,6 +55,8 @@ Sophia is a philosophical discussion application that allows users to input topi
   - `LLMModels.kt` - LLM model definitions and pricing information
   - `PhilosopherPrompts.kt` - All philosopher system prompts and conversation templates
   - `LLMBridge.kt` - Bridge between config and llm-wrapper modules
+- `database/src/main/kotlin/com/jcraw/sophia/database/` - Conversation persistence
+  - `SimpleConversationStorage.kt` - JSON-based conversation storage with async operations
 - `discussion/src/main/kotlin/com/jcraw/sophia/discussion/` - Domain logic
   - `Models.kt` - Domain models (Philosopher, ConversationState, etc.)
   - `ConversationEngine.kt` - Core conversation orchestration
@@ -64,6 +67,7 @@ Sophia is a philosophical discussion application that allows users to input topi
 - **Root**: JUnit 5 (jupiter) for testing
 - **App**: Compose Multiplatform, Material 3, discussion module, Kotlin 2.0.21, Coroutines
 - **Config**: LLM model definitions, prompts, and configuration settings
+- **Database**: Discussion module, Kotlinx Serialization, Kotlinx Coroutines for JSON-based storage
 - **Discussion**: Config module, LLM wrapper, Kotlinx Coroutines, Kotlinx Serialization
 - **LLM Wrapper**: Kotlinx Serialization, Ktor Client for OpenAI API calls
 
