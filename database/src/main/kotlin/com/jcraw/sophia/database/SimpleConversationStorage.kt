@@ -68,11 +68,36 @@ data class StoredSummaryContribution(
     val wordCount: Int
 )
 
+@Serializable
+data class StoredVideoScript(
+    val id: String,
+    val originalSummaryId: String,
+    val title: String,
+    val description: String,
+    val estimatedDuration: String,
+    val scenes: List<StoredScene>,
+    val productionNotes: List<String>,
+    val createdAt: String,
+    val totalScenes: Int
+)
+
+@Serializable
+data class StoredScene(
+    val sceneNumber: Int,
+    val type: String,
+    val duration: String,
+    val imagePrompt: String,
+    val dialogue: String? = null,
+    val philosopherName: String? = null,
+    val directorNotes: String? = null
+)
+
 class SimpleConversationStorage(
     private val storageDirectory: String = "conversations"
 ) {
     private val mutex = Mutex()
     private val summariesDirectory = "$storageDirectory/summaries"
+    private val videoScriptsDirectory = "$storageDirectory/video_scripts"
     private val json = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
@@ -81,6 +106,7 @@ class SimpleConversationStorage(
     init {
         File(storageDirectory).mkdirs()
         File(summariesDirectory).mkdirs()
+        File(videoScriptsDirectory).mkdirs()
     }
 
     suspend fun saveConversation(
@@ -142,6 +168,14 @@ class SimpleConversationStorage(
                     completedAt = Instant.now().toString(),
                     contributions = conversationState.originalConversation.finalContributions.map { it.toStored() }
                 )
+            }
+            is ConversationState.CreatingVideoScript -> {
+                // For video script creation, we don't need to save anything new to conversation storage
+                return@withLock id
+            }
+            is ConversationState.VideoScriptComplete -> {
+                // For video script completion, we don't need to save anything new to conversation storage
+                return@withLock id
             }
             is ConversationState.Error -> {
                 val existingConversation = loadConversation(id)
@@ -270,12 +304,92 @@ class SimpleConversationStorage(
         file.delete()
     }
 
+    // Video script storage methods
+    suspend fun saveVideoScript(
+        originalSummaryId: String,
+        videoScript: com.jcraw.sophia.discussion.VideoScript
+    ): String = mutex.withLock {
+        val id = generateVideoScriptId()
+
+        val storedScript = StoredVideoScript(
+            id = id,
+            originalSummaryId = originalSummaryId,
+            title = videoScript.title,
+            description = videoScript.description,
+            estimatedDuration = videoScript.estimatedDuration,
+            scenes = videoScript.scenes.map { scene ->
+                StoredScene(
+                    sceneNumber = scene.sceneNumber,
+                    type = sceneTypeToString(scene.type),
+                    duration = scene.duration,
+                    imagePrompt = scene.imagePrompt,
+                    dialogue = scene.dialogue,
+                    philosopherName = scene.philosopherName,
+                    directorNotes = scene.directorNotes
+                )
+            },
+            productionNotes = videoScript.productionNotes,
+            createdAt = videoScript.createdAt.toString(),
+            totalScenes = videoScript.totalScenes
+        )
+
+        val file = File(videoScriptsDirectory, "$id.json")
+        file.writeText(json.encodeToString(storedScript))
+        id
+    }
+
+    suspend fun loadVideoScript(id: String): StoredVideoScript? = mutex.withLock {
+        val file = File(videoScriptsDirectory, "$id.json")
+        if (!file.exists()) return@withLock null
+
+        try {
+            json.decodeFromString<StoredVideoScript>(file.readText())
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    suspend fun getAllVideoScripts(): List<StoredVideoScript> = mutex.withLock {
+        File(videoScriptsDirectory).listFiles { _, name -> name.endsWith(".json") }
+            ?.mapNotNull { file ->
+                try {
+                    json.decodeFromString<StoredVideoScript>(file.readText())
+                } catch (e: Exception) {
+                    null
+                }
+            }
+            ?.sortedByDescending { it.createdAt }
+            ?: emptyList()
+    }
+
+    suspend fun getVideoScriptsForSummary(summaryId: String): List<StoredVideoScript> {
+        return getAllVideoScripts().filter { it.originalSummaryId == summaryId }
+    }
+
+    suspend fun deleteVideoScript(id: String): Boolean = mutex.withLock {
+        val file = File(videoScriptsDirectory, "$id.json")
+        file.delete()
+    }
+
     private fun generateId(): String {
         return "conv_${System.currentTimeMillis()}_${(1000..9999).random()}"
     }
 
     private fun generateSummaryId(): String {
         return "summary_${System.currentTimeMillis()}_${(1000..9999).random()}"
+    }
+
+    private fun generateVideoScriptId(): String {
+        return "script_${System.currentTimeMillis()}_${(1000..9999).random()}"
+    }
+
+    private fun sceneTypeToString(type: com.jcraw.sophia.discussion.SceneType): String {
+        return when (type) {
+            is com.jcraw.sophia.discussion.SceneType.OPENING -> "OPENING"
+            is com.jcraw.sophia.discussion.SceneType.DIALOGUE -> "DIALOGUE"
+            is com.jcraw.sophia.discussion.SceneType.TRANSITION -> "TRANSITION"
+            is com.jcraw.sophia.discussion.SceneType.CLOSING -> "CLOSING"
+        }
     }
 }
 

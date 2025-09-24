@@ -1,0 +1,94 @@
+{
+    "id": "script_1758685639800_6150",
+    "originalSummaryId": "summary_1758680818538_1033",
+    "title": "What Truly Defines Greatness in Parenting?",
+    "description": "A cinematic exploration of contrasting philosophies on what makes a great parent—virtue, freedom, harmony.",
+    "estimatedDuration": "60 seconds",
+    "scenes": [
+        {
+            "sceneNumber": 1,
+            "type": "OPENING",
+            "duration": "5 seconds",
+            "imagePrompt": "Cinematic wide shot of ancient Greek columns illuminated by warm golden hour light, evoking timeless wisdom. Soft shadows, rich textures, suggesting a classical philosophical setting. Professional photography style.",
+            "directorNotes": "Establishes a contemplative mood. Use subtle camera movement or slow zoom to draw viewers in. Title overlay appears here."
+        },
+        {
+            "sceneNumber": 2,
+            "type": "DIALOGUE",
+            "duration": "8 seconds",
+            "imagePrompt": "Serene classical courtyard with marble benches, framed by ancient statues bathed in gentle sunlight; warm tones. An inviting, contemplative atmosphere.",
+            "dialogue": "Socrates: Is greatness about wealth, virtue, or impact on the soul?",
+            "philosopherName": "Socrates",
+            "directorNotes": "Focus on a warm, intimate close-up with soft focus on background. Slow reading pace; emphasize moral inquiry."
+        },
+        {
+            "sceneNumber": 3,
+            "type": "DIALOGUE",
+            "duration": "8 seconds",
+            "imagePrompt": "A quiet, minimalist study room at sunset with warm lighting, a single olive branch on a wooden desk, textured walls echoing ancient Greece.",
+            "dialogue": "Socrates: Perhaps true greatness lies in pursuing moral excellence and fostering goodness within another.",
+            "philosopherName": "Socrates",
+            "directorNotes": "Use gentle zoom-in or pan. Overlay text for key phrases: 'moral excellence' and 'goodness within.'"
+        },
+        {
+            "sceneNumber": 4,
+            "type": "DIALOGUE",
+            "duration": "8 seconds",
+            "imagePrompt": "A modern, open space with a large window overlooking a cityscape at dusk, warm lighting spilling into a room with minimalist furniture.",
+            "dialogue": "Jean-Paul Sartre: Greatness isn’t fixed. Parenting means accepting radical freedom.",
+            "philosopherName": "Sartre",
+            "directorNotes": "Linear camera movement, focusing on the window suggesting openness and freedom. Text overlay: 'radical freedom.'"
+        },
+        {
+            "sceneNumber": 5,
+            "type": "DIALOGUE",
+            "duration": "8 seconds",
+            "imagePrompt": "A peaceful garden scene at sunset, with a gentle flowing stream, lush greenery, and soft golden light creating calm and harmony.",
+            "dialogue": "Sartre: Authentic engagement—helping the child embrace their existence, not imposing goodness.",
+            "philosopherName": "Sartre",
+            "directorNotes": "Slow zoom or fade transition; emphasize the concept of authenticity and acceptance."
+        },
+        {
+            "sceneNumber": 6,
+            "type": "DIALOGUE",
+            "duration": "8 seconds",
+            "imagePrompt": "An elegant courtyard inspired by Confucian aesthetics, with wooden latticed screens, blossoming cherry trees, and warm ambient lighting.",
+            "dialogue": "Confucius: Great parents embody *ren*—benevolence—and *li*—proper conduct.",
+            "philosopherName": "Confucius",
+            "directorNotes": "Focus on traditional elements suggesting harmony; gentle camera movement. Text overlay: 'benevolence (*ren*)' and 'proper conduct (*li*).'"
+        },
+        {
+            "sceneNumber": 7,
+            "type": "DIALOGUE",
+            "duration": "8 seconds",
+            "imagePrompt": "A humble, sunlit room with a softly glowing lantern, simple tea set on a wooden table, evoking patience and moral cultivation.",
+            "dialogue": "Confucius: They nurture innate goodness, fostering harmony and respect.",
+            "philosopherName": "Confucius",
+            "directorNotes": "Use warm, soft focus; slow zoom to evoke nurturing and respect. Overlay: 'innate goodness.'"
+        },
+        {
+            "sceneNumber": 8,
+            "type": "TRANSITION",
+            "duration": "4 seconds",
+            "imagePrompt": "A smooth fade transition showing overlapping images of ancient Greece, modern cityscape, and serene gardens—symbolizing philosophical dialogue across time.",
+            "directorNotes": "Use subtle visual crossfade to unify contrasting ideas and prepare for closing."
+        },
+        {
+            "sceneNumber": 9,
+            "type": "CLOSING",
+            "duration": "5 seconds",
+            "imagePrompt": "A glowing horizon at sunrise, symbolizing hope and understanding—combining elements of enlightenment and harmony.",
+            "dialogue": "Reflection: Great parenting combines moral virtue, respect for freedom, and harmony—each path shaping a person’s true greatness.",
+            "directorNotes": "Slow zoom out, soft lighting, text overlay with key message: ‘True greatness in parenting.’ Establish a sense of hope and reflection."
+        }
+    ],
+    "productionNotes": [
+        "Pacing should be steady, with gentle transitions to emphasize introspection.",
+        "Overlay key phrases as text during dialogue for emphasis and engagement.",
+        "Use warm, cinematic lighting and depth to enhance mood without distracting from text.",
+        "Background music should be subtle, contemplative, with soft ambient sounds to match the philosophical tone.",
+        "Ensure text overlays are clear and minimally invasive, fitting the visual composition."
+    ],
+    "createdAt": "2025-09-24T03:47:19.800497814Z",
+    "totalScenes": 9
+}

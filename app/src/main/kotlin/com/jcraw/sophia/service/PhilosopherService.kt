@@ -20,6 +20,7 @@ class PhilosopherService(
     private val stateManager = ConversationStateManager()
     private val conversationEngine = ConversationEngine(llmClient, stateManager)
     private val summarizationEngine = SummarizationEngine(llmClient)
+    private val directorEngine = DirectorEngine(llmClient)
 
     val conversationState: StateFlow<ConversationState> = conversationEngine.state
 
@@ -110,6 +111,85 @@ class PhilosopherService(
         return conversationStorage.getSummariesForConversation(conversationId)
     }
 
+    // Video script functions
+    suspend fun createVideoScript(
+        summaryId: String,
+        config: DirectorConfig = DirectorConfig()
+    ): VideoScript {
+        println("🎬 Starting video script creation for summary: $summaryId")
+
+        val storedSummary = conversationStorage.loadSummary(summaryId)
+            ?: throw IllegalArgumentException("Summary not found: $summaryId")
+
+        // Convert stored summary to domain model
+        val summary = convertStoredSummaryToDomain(storedSummary)
+
+        val videoScript = directorEngine.createVideoScript(summary, config)
+
+        // Save the video script to storage
+        val scriptId = conversationStorage.saveVideoScript(summaryId, videoScript)
+        println("💾 Saved video script with ID: $scriptId")
+
+        return videoScript
+    }
+
+    suspend fun createVideoScriptAndGetId(
+        summaryId: String,
+        config: DirectorConfig = DirectorConfig()
+    ): String {
+        println("🎬 Starting video script creation for summary: $summaryId")
+
+        val storedSummary = conversationStorage.loadSummary(summaryId)
+            ?: throw IllegalArgumentException("Summary not found: $summaryId")
+
+        // Convert stored summary to domain model
+        val summary = convertStoredSummaryToDomain(storedSummary)
+
+        val videoScript = directorEngine.createVideoScript(summary, config)
+
+        // Save the video script to storage
+        val scriptId = conversationStorage.saveVideoScript(summaryId, videoScript)
+        println("💾 Saved video script with ID: $scriptId")
+
+        return scriptId
+    }
+
+    suspend fun loadVideoScript(scriptId: String): com.jcraw.sophia.database.StoredVideoScript? {
+        return conversationStorage.loadVideoScript(scriptId)
+    }
+
+    suspend fun getAllVideoScripts(): List<com.jcraw.sophia.database.StoredVideoScript> {
+        return conversationStorage.getAllVideoScripts()
+    }
+
+    suspend fun getVideoScriptsForSummary(summaryId: String): List<com.jcraw.sophia.database.StoredVideoScript> {
+        return conversationStorage.getVideoScriptsForSummary(summaryId)
+    }
+
+    private fun convertStoredSummaryToDomain(storedSummary: com.jcraw.sophia.database.StoredConversationSummary): ConversationSummary {
+        val rounds = storedSummary.rounds.map { storedRound ->
+            SummaryRound(
+                roundNumber = storedRound.roundNumber,
+                contributions = storedRound.contributions.map { storedContrib ->
+                    SummaryContribution(
+                        philosopherName = storedContrib.philosopherName,
+                        response = storedContrib.response,
+                        wordCount = storedContrib.wordCount
+                    )
+                }
+            )
+        }
+
+        return ConversationSummary(
+            originalTopic = storedSummary.originalTopic,
+            condensedTopic = storedSummary.condensedTopic,
+            participants = storedSummary.participants,
+            rounds = rounds,
+            videoNotes = storedSummary.videoNotes,
+            createdAt = java.time.Instant.parse(storedSummary.createdAt)
+        )
+    }
+
     private suspend fun convertStoredToCompletedState(storedConversation: StoredConversation): ConversationState.Completed {
         // Convert stored conversation back to domain models
         val participants = storedConversation.participants.map { storedPhil ->
@@ -134,7 +214,7 @@ class PhilosopherService(
                 PhilosopherContribution(
                     philosopher = philosopher,
                     response = storedContrib.response,
-                    timestamp = java.time.Instant.ofEpochSecond(kotlinx.datetime.Instant.parse(storedContrib.timestamp).epochSeconds),
+                    timestamp = java.time.Instant.parse(storedContrib.timestamp),
                     roundNumber = storedContrib.roundNumber,
                     wordCount = storedContrib.wordCount
                 )

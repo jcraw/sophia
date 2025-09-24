@@ -30,6 +30,7 @@ fun SummaryViewScreen(
     onNewConversation: () -> Unit,
     onStartSimilar: (String, List<Philosopher>) -> Unit,
     onViewOriginal: () -> Unit,
+    onCreateVideoScript: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxSize()) {
@@ -39,7 +40,8 @@ fun SummaryViewScreen(
             originalConversation = originalConversation,
             onNewConversation = onNewConversation,
             onStartSimilar = onStartSimilar,
-            onViewOriginal = onViewOriginal
+            onViewOriginal = onViewOriginal,
+            onCreateVideoScript = onCreateVideoScript
         )
 
         HorizontalDivider()
@@ -83,6 +85,7 @@ private fun SummaryViewHeader(
     onNewConversation: () -> Unit,
     onStartSimilar: (String, List<Philosopher>) -> Unit,
     onViewOriginal: () -> Unit,
+    onCreateVideoScript: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
@@ -104,6 +107,20 @@ private fun SummaryViewHeader(
         actions = {
             TextButton(onClick = onViewOriginal) {
                 Text("View Original")
+            }
+
+            TextButton(
+                onClick = {
+                    onCreateVideoScript(summary.id)
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.PlayArrow,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Video Script")
             }
 
             TextButton(

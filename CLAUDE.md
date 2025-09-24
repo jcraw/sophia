@@ -12,8 +12,9 @@ Sophia is a philosophical discussion application that allows users to input topi
 - **Multi-Philosopher Discussions** - Support for 1-6 philosophers in simultaneous conversations
 - **Flexible Configuration** - Adjustable rounds, word limits, and participant selection
 - **AI-Powered Summarization** - Convert full conversations into video-optimized summaries for YouTube Shorts
-- **Smart Content Management** - Persistent storage for both conversations and summaries with easy access
-- **Video Production Ready** - Summaries designed specifically for short-form video content creation
+- **Video Script Generation** - AI director agent creates YouTube Shorts scripts with cinematic image prompts
+- **Smart Content Management** - Persistent storage for conversations, summaries, and video scripts with easy access
+- **Video Production Ready** - Complete workflow from philosophical discussion to copyable image prompts
 
 ## Common Commands
 

@@ -170,3 +170,99 @@ Focus on:
         appendLine("Ensure the JSON is valid and complete.")
     }
 }
+
+object DirectorPrompts {
+
+    val systemPrompt = """You are a creative director specializing in philosophical YouTube Shorts. Your role is to transform philosophical discussions into compelling video scripts with visual scenes.
+
+Your expertise:
+- Creating engaging visual narratives for short-form video content
+- Designing atmospheric scenes that enhance philosophical dialogue
+- Crafting image prompts that create compelling backdrops without distracting from dialogue
+- Understanding how visual storytelling supports philosophical concepts
+- Optimizing content for social media engagement while preserving intellectual depth
+
+Your approach:
+- Each dialogue gets its own scene with a thoughtfully designed visual backdrop
+- Images should be atmospheric and thematically relevant, not literal
+- Visual metaphors that reinforce philosophical concepts
+- Professional cinematic quality with warm, engaging lighting
+- Scenes that work well with text overlays and spoken narration
+- Focus on creating mood and atmosphere that enhances the philosophical content
+
+Visual style guidelines:
+- Cinematic composition with depth and visual interest
+- Warm, inviting lighting that draws viewers in
+- Rich colors and textures that feel premium
+- Avoid busy backgrounds that compete with text overlays
+- Create visual rhythm and flow between scenes
+- Use environmental storytelling to reinforce themes"""
+
+    fun buildScriptCreationPrompt(
+        summary: String,
+        estimatedDuration: String = "60 seconds"
+    ): String = buildString {
+        appendLine("PHILOSOPHICAL DISCUSSION SUMMARY:")
+        appendLine(summary)
+        appendLine()
+        appendLine("SCRIPT CREATION TASK:")
+        appendLine("Transform this philosophical discussion into a compelling YouTube Shorts video script.")
+        appendLine("Target duration: $estimatedDuration")
+        appendLine()
+        appendLine("Requirements:")
+        appendLine("- Create an opening scene that sets the philosophical tone")
+        appendLine("- Design a unique visual scene for each philosopher's dialogue")
+        appendLine("- Add brief transition scenes between major philosophical shifts")
+        appendLine("- Include a closing scene that provides resolution or reflection")
+        appendLine("- Each scene needs a detailed image prompt for AI image generation")
+        appendLine("- Image prompts should create atmospheric backdrops that enhance but don't distract from the dialogue")
+        appendLine("- Ensure visual continuity and thematic coherence throughout")
+        appendLine("- Include production notes for video editing and pacing")
+        appendLine()
+        appendLine("Format your response as a JSON object with this structure:")
+        appendLine("""
+{
+  "videoScript": {
+    "title": "Engaging title for the video",
+    "description": "Brief description of the philosophical discussion",
+    "estimatedDuration": "$estimatedDuration",
+    "scenes": [
+      {
+        "sceneNumber": 1,
+        "type": "OPENING",
+        "duration": "5 seconds",
+        "imagePrompt": "Cinematic wide shot of ancient Greek columns bathed in golden hour light, creating a sense of timeless wisdom and philosophical depth. Soft shadows and warm lighting. Professional photography style.",
+        "dialogue": null,
+        "philosopherName": null,
+        "directorNotes": "Sets the philosophical tone, allows for title overlay"
+      },
+      {
+        "sceneNumber": 2,
+        "type": "DIALOGUE",
+        "duration": "15 seconds",
+        "imagePrompt": "Atmospheric scene tailored to the philosopher's era and style",
+        "dialogue": "The actual philosophical quote/dialogue",
+        "philosopherName": "Philosopher Name",
+        "directorNotes": "Notes about pacing, emphasis, visual elements"
+      }
+    ],
+    "productionNotes": [
+      "Key insights about editing rhythm and pacing",
+      "Suggestions for text overlay timing",
+      "Notes about music or sound design"
+    ]
+  }
+}""".trimIndent())
+        appendLine()
+        appendLine("Key considerations for image prompts:")
+        appendLine("- Use cinematic language (\"wide shot\", \"close-up\", \"golden hour lighting\")")
+        appendLine("- Specify professional photography or film style")
+        appendLine("- Include lighting details (warm, soft, dramatic, etc.)")
+        appendLine("- Mention composition elements that create visual depth")
+        appendLine("- Ensure each prompt creates a distinct but cohesive visual")
+        appendLine("- Consider how text overlays will appear on the image")
+        appendLine("- Match the visual mood to the philosophical content")
+        appendLine()
+        appendLine("Ensure the JSON is valid and complete.")
+    }
+}

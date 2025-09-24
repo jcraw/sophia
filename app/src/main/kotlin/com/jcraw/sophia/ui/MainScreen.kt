@@ -18,6 +18,7 @@ sealed class MainScreenMode {
     data object CurrentConversation : MainScreenMode()
     data class ViewHistoricConversation(val conversationId: String) : MainScreenMode()
     data class ViewSummary(val summaryId: String, val originalConversationId: String) : MainScreenMode()
+    data class ViewVideoScript(val scriptId: String, val originalSummaryId: String) : MainScreenMode()
 }
 
 @Composable
@@ -31,6 +32,7 @@ fun MainScreen(
     var selectedHistoricConversation by remember { mutableStateOf<StoredConversation?>(null) }
     var selectedSummary by remember { mutableStateOf<com.jcraw.sophia.database.StoredConversationSummary?>(null) }
     var conversationSummaries by remember { mutableStateOf<Map<String, List<com.jcraw.sophia.database.StoredConversationSummary>>>(emptyMap()) }
+    var videoScripts by remember { mutableStateOf<Map<String, List<com.jcraw.sophia.database.StoredVideoScript>>>(emptyMap()) }
 
     val scope = rememberCoroutineScope()
     val conversationState by philosopherService.conversationState.collectAsState()
@@ -38,15 +40,26 @@ fun MainScreen(
     // Load conversations and summaries on startup and refresh when needed
     LaunchedEffect(Unit) {
         conversations = philosopherService.getAllConversations()
-        // Load summaries for all conversations
+        // Load summaries and video scripts for all conversations
         val summariesMap = mutableMapOf<String, List<com.jcraw.sophia.database.StoredConversationSummary>>()
+        val videoScriptsMap = mutableMapOf<String, List<com.jcraw.sophia.database.StoredVideoScript>>()
+
         conversations.forEach { conversation ->
             val summariesForConversation = philosopherService.getSummariesForConversation(conversation.id)
             if (summariesForConversation.isNotEmpty()) {
                 summariesMap[conversation.id] = summariesForConversation
+
+                // Load video scripts for each summary
+                summariesForConversation.forEach { summary ->
+                    val scriptsForSummary = philosopherService.getVideoScriptsForSummary(summary.id)
+                    if (scriptsForSummary.isNotEmpty()) {
+                        videoScriptsMap[summary.id] = scriptsForSummary
+                    }
+                }
             }
         }
         conversationSummaries = summariesMap
+        videoScripts = videoScriptsMap
     }
 
     // Auto-save conversations when they complete
@@ -107,6 +120,10 @@ fun MainScreen(
                 }
             },
             conversationSummaries = conversationSummaries,
+            onVideoScriptSelect = { scriptId, originalSummaryId ->
+                mode = MainScreenMode.ViewVideoScript(scriptId, originalSummaryId)
+            },
+            videoScripts = videoScripts,
             modifier = Modifier.width(320.dp)
         )
 
@@ -234,6 +251,19 @@ fun MainScreen(
                                 val currentMode = mode as MainScreenMode.ViewSummary
                                 mode = MainScreenMode.ViewHistoricConversation(currentMode.originalConversationId)
                             },
+                            onCreateVideoScript = { summaryId ->
+                                scope.launch {
+                                    try {
+                                        println("🎬 Creating video script for summary: $summaryId")
+                                        val scriptId = philosopherService.createVideoScriptAndGetId(summaryId)
+                                        mode = MainScreenMode.ViewVideoScript(scriptId, summaryId)
+                                        println("✅ Video script creation complete! Navigating to video script view.")
+                                    } catch (e: Exception) {
+                                        println("❌ Video script creation failed: ${e.message}")
+                                        e.printStackTrace()
+                                    }
+                                }
+                            },
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -245,6 +275,52 @@ fun MainScreen(
                             .fillMaxHeight()
                             .padding(32.dp),
                         contentAlignment = androidx.compose.ui.Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
+
+            is MainScreenMode.ViewVideoScript -> {
+                val currentMode = mode as MainScreenMode.ViewVideoScript
+                val videoScript = remember(currentMode.scriptId) {
+                    mutableStateOf<com.jcraw.sophia.database.StoredVideoScript?>(null)
+                }
+                val originalSummary = remember(currentMode.originalSummaryId) {
+                    mutableStateOf<com.jcraw.sophia.database.StoredConversationSummary?>(null)
+                }
+
+                LaunchedEffect(currentMode.scriptId, currentMode.originalSummaryId) {
+                    videoScript.value = philosopherService.loadVideoScript(currentMode.scriptId)
+                    originalSummary.value = philosopherService.loadSummary(currentMode.originalSummaryId)
+                }
+
+                videoScript.value?.let { script ->
+                    originalSummary.value?.let { summary ->
+                        VideoScriptViewScreen(
+                            videoScript = script,
+                            originalSummary = summary,
+                            onNewConversation = {
+                                philosopherService.resetConversation()
+                                selectedConversationId = null
+                                selectedHistoricConversation = null
+                                selectedSummary = null
+                                mode = MainScreenMode.Setup
+                            },
+                            onViewSummary = {
+                                mode = MainScreenMode.ViewSummary(currentMode.originalSummaryId, summary.originalConversationId)
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                } ?: run {
+                    // Loading or error state
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator()
                     }

@@ -80,6 +80,47 @@ data class ConversationSummary(
     }
 }
 
+data class DirectorConfig(
+    val includeOpeningShot: Boolean = true,
+    val includeClosingShot: Boolean = true,
+    val sceneTransitionStyle: String = "philosophical_atmosphere"
+)
+
+data class VideoScript(
+    val title: String,
+    val description: String,
+    val estimatedDuration: String,
+    val scenes: List<Scene>,
+    val productionNotes: List<String>,
+    val createdAt: Instant = Instant.now()
+) {
+    val totalScenes: Int
+        get() = scenes.size
+
+    val hasDialogueScenes: Boolean
+        get() = scenes.any { it.type == SceneType.DIALOGUE }
+}
+
+data class Scene(
+    val sceneNumber: Int,
+    val type: SceneType,
+    val duration: String,
+    val imagePrompt: String,
+    val dialogue: String? = null,
+    val philosopherName: String? = null,
+    val directorNotes: String? = null
+) {
+    val isDialogueScene: Boolean
+        get() = type == SceneType.DIALOGUE && philosopherName != null
+}
+
+sealed class SceneType {
+    data object OPENING : SceneType()
+    data object DIALOGUE : SceneType()
+    data object TRANSITION : SceneType()
+    data object CLOSING : SceneType()
+}
+
 data class SummaryRound(
     val roundNumber: Int,
     val contributions: List<SummaryContribution>
@@ -134,6 +175,16 @@ sealed class ConversationState {
     data class SummarizationComplete(
         val originalConversation: Completed,
         val summary: ConversationSummary
+    ) : ConversationState()
+
+    data class CreatingVideoScript(
+        val summary: ConversationSummary,
+        val config: DirectorConfig
+    ) : ConversationState()
+
+    data class VideoScriptComplete(
+        val summary: ConversationSummary,
+        val videoScript: VideoScript
     ) : ConversationState()
 
     data class Error(val message: String, val cause: Throwable? = null) : ConversationState()
@@ -211,6 +262,27 @@ class ConversationStateManager {
         _state.value = ConversationState.SummarizationComplete(
             originalConversation = currentState.originalConversation,
             summary = summary
+        )
+    }
+
+    fun startVideoScriptCreation(config: DirectorConfig) {
+        val currentState = _state.value
+        if (currentState !is ConversationState.SummarizationComplete) {
+            setError("Can only create video scripts from completed summaries")
+            return
+        }
+        _state.value = ConversationState.CreatingVideoScript(currentState.summary, config)
+    }
+
+    fun completeVideoScript(videoScript: VideoScript) {
+        val currentState = _state.value
+        if (currentState !is ConversationState.CreatingVideoScript) {
+            setError("Not currently creating video script")
+            return
+        }
+        _state.value = ConversationState.VideoScriptComplete(
+            summary = currentState.summary,
+            videoScript = videoScript
         )
     }
 

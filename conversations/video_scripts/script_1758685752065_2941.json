@@ -1,0 +1,74 @@
+{
+    "id": "script_1758685752065_2941",
+    "originalSummaryId": "summary_1758680818538_1033",
+    "title": "What Truly Makes a Great Parent? A Philosophical Reflection",
+    "description": "A condensed dialogue exploring the essence of greatness in parenting through Socrates, Sartre, and Confucius, with immersive visual storytelling.",
+    "estimatedDuration": "60 seconds",
+    "scenes": [
+        {
+            "sceneNumber": 1,
+            "type": "OPENING",
+            "duration": "5 seconds",
+            "imagePrompt": "Cinematic wide shot of ancient Greek amphitheater at dawn, with soft golden sunlight illuminating marble columns and steps, creating a timeless atmosphere of wisdom. Warm tones, subtle shadows, professional photography style.",
+            "directorNotes": "Establishes a reflective, timeless mood. Overlay the title text: 'What Defines Greatness in Parenting?'"
+        },
+        {
+            "sceneNumber": 2,
+            "type": "DIALOGUE",
+            "duration": "15 seconds",
+            "imagePrompt": "Elegant scene of Socrates seated beside a simple stone fountain, lush greenery in the background, golden afternoon lighting, capturing a contemplative mood with warm hues and soft focus.",
+            "dialogue": "Is greatness about wealth, virtue, or impact on the soul? True greatness lies in moral excellence, fostering goodness within.",
+            "philosopherName": "Socrates",
+            "directorNotes": "Use slow zoom-in for emphasis. Include subtitle highlighting key phrase: 'fostering goodness within.' Natural voiceover or text overlay synchronized with the dialogue."
+        },
+        {
+            "sceneNumber": 3,
+            "type": "TRANSITION",
+            "duration": "2 seconds",
+            "imagePrompt": "Smooth blur transition with swirling warm light, creating a sense of shift in philosophical focus.",
+            "directorNotes": "Visual cue for scene change, maintain warm tonal palette."
+        },
+        {
+            "sceneNumber": 4,
+            "type": "DIALOGUE",
+            "duration": "15 seconds",
+            "imagePrompt": "A solitary, modern apartment window overlooking a city skyline at sunset, warm amber glow fills the space, symbolizing individual freedom. Soft shadows with a cinematic depth of field.",
+            "dialogue": "Greatness isn’t fixed. Parenting means accepting the child’s radical freedom—helping them embrace their existence, not imposing predetermined goodness.",
+            "philosopherName": "Jean-Paul Sartre",
+            "directorNotes": "Use close-up of a person gazing out window to evoke introspection. Emphasize words 'freedom' and 'embrace their existence.'"
+        },
+        {
+            "sceneNumber": 5,
+            "type": "TRANSITION",
+            "duration": "2 seconds",
+            "imagePrompt": "A gentle fade to a scene with traditional Chinese garden elements—bamboo, stone pathways—bathed in warm evening light.",
+            "directorNotes": "Visual metaphor for harmony and virtue."
+        },
+        {
+            "sceneNumber": 6,
+            "type": "DIALOGUE",
+            "duration": "15 seconds",
+            "imagePrompt": "Serene courtyard scene with a wise Confucian scholar seated under a large tree, soft lantern glow creating warm, diffuse lighting, emphasizing moral harmony.",
+            "dialogue": "Great parents embody *ren*—benevolence—and *li*—proper conduct. Through moral example, they nurture innate goodness and foster harmony.",
+            "philosopherName": "Confucius",
+            "directorNotes": "Focus on calm, respectful expressions. Overlay key terms *ren* and *li* in elegant calligraphy style for visual emphasis."
+        },
+        {
+            "sceneNumber": 7,
+            "type": "CLOSING",
+            "duration": "8 seconds",
+            "imagePrompt": "A gentle landscape of a sunrise over mountains and tranquil waters, symbolizing hope, growth, and reflection, with warm, golden lighting.",
+            "dialogue": "Greatness in parenting blends moral excellence, freedom, and virtue—each guiding the other's path.",
+            "directorNotes": "Slow zoom out. Overlay reflective question: 'What kind of parent will you be?'"
+        }
+    ],
+    "productionNotes": [
+        "Maintain a warm, cinematic tone throughout, emphasizing soft lighting and rich textures.",
+        "Pace the scenes to allow viewers to absorb each philosophical insight, with subtle fade transitions.",
+        "Text overlays should highlight key concepts like 'moral excellence,' 'freedom,' and 'virtue' at relevant moments.",
+        "Use gentle background music—perhaps classical or ambient—to enhance contemplative mood without overpowering narration.",
+        "Balance narration and text overlays to ensure clarity and engagement within the 60-second timeframe."
+    ],
+    "createdAt": "2025-09-24T03:49:12.065395588Z",
+    "totalScenes": 7
+}

@@ -29,6 +29,8 @@ fun ConversationHistoryPanel(
     onDeleteConversation: (String) -> Unit,
     onSummarySelect: ((String, String) -> Unit)? = null, // summaryId, originalConversationId
     conversationSummaries: Map<String, List<com.jcraw.sophia.database.StoredConversationSummary>> = emptyMap(),
+    onVideoScriptSelect: ((String, String) -> Unit)? = null, // scriptId, originalSummaryId
+    videoScripts: Map<String, List<com.jcraw.sophia.database.StoredVideoScript>> = emptyMap(),
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -83,7 +85,9 @@ fun ConversationHistoryPanel(
                             onSelect = { onConversationSelect(conversation.id) },
                             onDelete = { onDeleteConversation(conversation.id) },
                             summaries = conversationSummaries[conversation.id] ?: emptyList(),
-                            onSummarySelect = onSummarySelect
+                            onSummarySelect = onSummarySelect,
+                            videoScripts = videoScripts,
+                            onVideoScriptSelect = onVideoScriptSelect
                         )
                     }
                 }
@@ -100,6 +104,8 @@ private fun ConversationHistoryItem(
     onDelete: () -> Unit,
     summaries: List<com.jcraw.sophia.database.StoredConversationSummary>,
     onSummarySelect: ((String, String) -> Unit)?,
+    videoScripts: Map<String, List<com.jcraw.sophia.database.StoredVideoScript>> = emptyMap(),
+    onVideoScriptSelect: ((String, String) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -197,6 +203,41 @@ private fun ConversationHistoryItem(
                             text = "+${summaries.size - 2} more",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            // Video Scripts from all summaries of this conversation
+            val allVideoScriptsForConversation = summaries.flatMap { summary ->
+                videoScripts[summary.id] ?: emptyList()
+            }
+
+            if (allVideoScriptsForConversation.isNotEmpty() && onVideoScriptSelect != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Column {
+                    Text(
+                        text = "Video Scripts (${allVideoScriptsForConversation.size})",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    allVideoScriptsForConversation.take(2).forEach { script -> // Show max 2 scripts
+                        VideoScriptChip(
+                            videoScript = script,
+                            onClick = { onVideoScriptSelect(script.id, script.originalSummaryId) }
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                    }
+
+                    if (allVideoScriptsForConversation.size > 2) {
+                        Text(
+                            text = "+${allVideoScriptsForConversation.size - 2} more",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                         )
                     }
                 }
@@ -310,6 +351,37 @@ private fun SummaryChip(
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = "${summary.rounds.size}R • ${summary.totalWordCount}W",
+                style = MaterialTheme.typography.labelSmall
+            )
+        }
+    }
+}
+
+@Composable
+private fun VideoScriptChip(
+    videoScript: com.jcraw.sophia.database.StoredVideoScript,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier,
+        shape = MaterialTheme.shapes.small,
+        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f),
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.PlayArrow,
+                contentDescription = null,
+                modifier = Modifier.size(12.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "${videoScript.totalScenes}S • ${videoScript.estimatedDuration}",
                 style = MaterialTheme.typography.labelSmall
             )
         }

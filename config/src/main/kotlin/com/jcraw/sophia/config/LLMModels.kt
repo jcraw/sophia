@@ -32,11 +32,15 @@ object LLMConfig {
     // Model for conversation summarization - slightly higher capability for analysis
     val summarizationModel: LLMModel = LLMModel.GPT4_1Nano
 
+    // Model for video script creation - needs creativity for visual descriptions
+    val directorModel: LLMModel = LLMModel.GPT4_1Nano
+
     // Temperature settings for different use cases
     const val CREATIVE_TEMPERATURE = 0.8 // For philosophical discussions
     const val BALANCED_TEMPERATURE = 0.5 // For general tasks
     const val PRECISE_TEMPERATURE = 0.2 // For factual responses
     const val SUMMARIZATION_TEMPERATURE = 0.3 // For summarization - precise but some creativity
+    const val DIRECTOR_TEMPERATURE = 0.7 // For video script creation - high creativity for visual descriptions
 
     // Token limits
     const val DEFAULT_MAX_TOKENS = 300 // ~150 words as per current logic

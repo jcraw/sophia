@@ -61,6 +61,22 @@ fun ConversationScreen(
                 )
             }
 
+            is ConversationState.CreatingVideoScript -> {
+                EmptyStateMessage(
+                    message = "Creating video script...",
+                    onAction = { /* No action during creation */ },
+                    actionText = "Please wait"
+                )
+            }
+
+            is ConversationState.VideoScriptComplete -> {
+                EmptyStateMessage(
+                    message = "Video script created successfully! Check the history sidebar.",
+                    onAction = onNewConversation,
+                    actionText = "New Discussion"
+                )
+            }
+
             is ConversationState.Error -> {
                 ErrorStateMessage(
                     message = state.message,
