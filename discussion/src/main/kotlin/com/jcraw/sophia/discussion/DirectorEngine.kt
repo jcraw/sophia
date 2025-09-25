@@ -38,8 +38,20 @@ class DirectorEngine(
             maxTokens = LLMConfig.SUMMARIZATION_MAX_TOKENS * 2 // More tokens needed for scene descriptions
         )
 
-        val responseText = response.choices.firstOrNull()?.message?.content?.trim()
-            ?: throw IllegalArgumentException("Empty or null response from LLM")
+        val choice = response.choices.firstOrNull()
+            ?: throw IllegalArgumentException("No choices in LLM response")
+
+        val responseText = choice.message?.content?.trim()
+
+        // Check for empty response due to token limits
+        if (responseText.isNullOrEmpty()) {
+            val finishReason = choice.finishReason
+            if (finishReason == "length") {
+                throw IllegalArgumentException("LLM response was cut off due to token limits. The summary may be too long for video script generation. Try a shorter summary or increase max_tokens.")
+            } else {
+                throw IllegalArgumentException("Empty or null response from LLM. Finish reason: $finishReason")
+            }
+        }
 
         parseVideoScriptResponse(responseText, summary)
     }

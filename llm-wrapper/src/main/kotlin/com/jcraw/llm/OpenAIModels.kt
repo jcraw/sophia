@@ -36,10 +36,10 @@ object LLMConfig {
     val defaultPhilosophicalModel: OpenAIModel = OpenAIModel.GPT5_Nano
 
     // Model for conversation summarization
-    val summarizationModel: OpenAIModel = OpenAIModel.GPT5_Nano
+    val summarizationModel: OpenAIModel = OpenAIModel.GPT4_1Mini
 
     // Model for video script creation
-    val directorModel: OpenAIModel = OpenAIModel.GPT5_Nano
+    val directorModel: OpenAIModel = OpenAIModel.GPT4_1Mini
 
     // Temperature settings for different use cases
     const val CREATIVE_TEMPERATURE = 0.8 // For philosophical discussions
@@ -51,5 +51,5 @@ object LLMConfig {
     // Token limits - GPT-5 needs higher limits due to different tokenization
     const val DEFAULT_MAX_TOKENS = 1000 // ~400 words for GPT-5
     const val LONG_RESPONSE_MAX_TOKENS = 1500 // For detailed responses
-    const val SUMMARIZATION_MAX_TOKENS = 2000 // For summarization output including JSON structure
+    const val SUMMARIZATION_MAX_TOKENS = 3000 // For summarization output - GPT-4.1-mini has larger context
 }
