@@ -30,16 +30,55 @@ sealed class OpenAIModel(
     override fun toString(): String = modelId
 }
 
+// Configuration profiles for different environments
+sealed class LLMProfile(
+    val philosophicalModel: OpenAIModel,
+    val summarizationModel: OpenAIModel,
+    val directorModel: OpenAIModel
+) {
+    // Debug/Testing - uses cheapest models for development
+    data object Debug : LLMProfile(
+        philosophicalModel = OpenAIModel.GPT4_1Nano,
+        summarizationModel = OpenAIModel.GPT4_1Nano,
+        directorModel = OpenAIModel.GPT4_1Nano
+    )
+
+    // Balanced - good quality at reasonable cost
+    data object Balanced : LLMProfile(
+        philosophicalModel = OpenAIModel.GPT5_Nano,
+        summarizationModel = OpenAIModel.GPT4_1Mini,
+        directorModel = OpenAIModel.GPT4_1Mini
+    )
+
+    // Production - highest quality models for release
+    data object Production : LLMProfile(
+        philosophicalModel = OpenAIModel.GPT5_Mini,
+        summarizationModel = OpenAIModel.GPT5_Mini,
+        directorModel = OpenAIModel.GPT5_Mini
+    )
+}
+
 // Configuration for LLM usage
 object LLMConfig {
-    // Default model for philosophical discussions - using gpt-5-nano
-    val defaultPhilosophicalModel: OpenAIModel = OpenAIModel.GPT5_Nano
+    // Current active profile - defaults to Debug for development
+    private var currentProfile: LLMProfile = LLMProfile.Debug
 
-    // Model for conversation summarization
-    val summarizationModel: OpenAIModel = OpenAIModel.GPT4_1Mini
+    // Public API to change profiles
+    fun setProfile(profile: LLMProfile) {
+        currentProfile = profile
+    }
 
-    // Model for video script creation
-    val directorModel: OpenAIModel = OpenAIModel.GPT4_1Mini
+    fun getCurrentProfile(): LLMProfile = currentProfile
+
+    // Model accessors that use the current profile
+    val defaultPhilosophicalModel: OpenAIModel
+        get() = currentProfile.philosophicalModel
+
+    val summarizationModel: OpenAIModel
+        get() = currentProfile.summarizationModel
+
+    val directorModel: OpenAIModel
+        get() = currentProfile.directorModel
 
     // Temperature settings for different use cases
     const val CREATIVE_TEMPERATURE = 0.8 // For philosophical discussions
