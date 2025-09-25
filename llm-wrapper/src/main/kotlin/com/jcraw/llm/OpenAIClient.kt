@@ -23,7 +23,7 @@ data class OpenAIMessage(
 data class OpenAIRequest(
     val model: String,
     val messages: List<OpenAIMessage>,
-    @SerialName("max_tokens") val maxTokens: Int = 1000,
+    @SerialName("max_completion_tokens") val maxTokens: Int = 1000,
     val temperature: Double = 0.7
 )
 
@@ -71,10 +71,11 @@ class OpenAIClient(private val apiKey: String) : LLMClient {
         maxTokens: Int,
         temperature: Double
     ): OpenAIResponse {
+        val actualTemperature = if (model.modelId.startsWith("gpt-5")) 1.0 else temperature
         println("🌐 OpenAI API call starting...")
         println("   Model: ${model.modelId}")
         println("   Max tokens: $maxTokens")
-        println("   Temperature: $temperature")
+        println("   Temperature: $actualTemperature${if (actualTemperature != temperature) " (forced to 1.0 for GPT-5)" else ""}")
         println("   System prompt: ${systemPrompt.take(100)}...")
         println("   User context: ${userContext.take(100)}...")
 
@@ -87,7 +88,7 @@ class OpenAIClient(private val apiKey: String) : LLMClient {
             model = model.modelId,
             messages = messages,
             maxTokens = maxTokens,
-            temperature = temperature
+            temperature = actualTemperature
         )
 
         try {
@@ -110,6 +111,14 @@ class OpenAIClient(private val apiKey: String) : LLMClient {
             val cost = model.calculateCost(response.usage)
             println("🔥 LLM API: ${model.modelId} | tokens=${response.usage.totalTokens} (${response.usage.promptTokens}+${response.usage.completionTokens}) | cost=$%.4f".format(cost))
             println("✅ OpenAI API call successful, received ${response.choices.size} choices")
+
+            // Debug the response content when empty
+            if (response.choices.any { it.message.content.isNullOrBlank() }) {
+                response.choices.forEachIndexed { index, choice ->
+                    println("   Choice $index content: '${choice.message.content}' (length: ${choice.message.content?.length ?: 0})")
+                    println("   Choice $index finish_reason: ${choice.finishReason}")
+                }
+            }
 
             return response
         } catch (e: Exception) {

@@ -1,8 +1,7 @@
 package com.jcraw.sophia.discussion
 
 import com.jcraw.llm.LLMClient
-import com.jcraw.sophia.config.LLMBridge
-import com.jcraw.sophia.config.LLMConfig
+import com.jcraw.llm.LLMConfig
 import com.jcraw.sophia.config.SummarizationPrompts
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -33,7 +32,7 @@ class SummarizationEngine(
             maxWordsPerResponse = config.maxWordsPerResponse
         )
 
-        val model = LLMBridge.toOpenAIModel(LLMConfig.summarizationModel)
+        val model = LLMConfig.summarizationModel
 
         val response = llmClient.chatCompletion(
             model = model,

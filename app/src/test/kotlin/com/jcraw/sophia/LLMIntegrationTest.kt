@@ -47,17 +47,17 @@ class LLMIntegrationTest {
 
         println("🧪 Testing LLM integration...")
         println("🔑 API Key: ${apiKey.take(10)}...")
-        println("🎯 Model: ${OpenAIModel.GPT4_1Nano.modelId}")
+        println("🎯 Model: ${OpenAIModel.GPT5_Nano.modelId}")
         println("📝 System prompt: $systemPrompt")
         println("❓ User prompt: $userPrompt")
 
         try {
             // Act
             val response = llmClient.chatCompletion(
-                model = OpenAIModel.GPT4_1Nano,
+                model = OpenAIModel.GPT5_Nano,
                 systemPrompt = systemPrompt,
                 userContext = userPrompt,
-                maxTokens = 50,
+                maxTokens = 200,
                 temperature = 0.1
             )
 
@@ -71,7 +71,7 @@ class LLMIntegrationTest {
 
             println("✅ LLM Response: '$responseText'")
             println("📊 Usage: ${response.usage.totalTokens} tokens (${response.usage.promptTokens}+${response.usage.completionTokens})")
-            println("💰 Cost: $${String.format("%.4f", OpenAIModel.GPT4_1Nano.calculateCost(response.usage))}")
+            println("💰 Cost: $${String.format("%.4f", OpenAIModel.GPT5_Nano.calculateCost(response.usage))}")
 
             // Basic validation that it's a reasonable response
             assertTrue(responseText.length > 0, "Response should have content")
@@ -109,10 +109,10 @@ class LLMIntegrationTest {
         try {
             // Act
             val response = llmClient.chatCompletion(
-                model = OpenAIModel.GPT4_1Nano,
+                model = OpenAIModel.GPT5_Nano,
                 systemPrompt = socraticPrompt,
                 userContext = "Topic for discussion: \"$topic\"\n\nPlease provide your initial thoughts on this topic as Socrates. Share your philosophical perspective and approach to this question. Keep your response concise but substantive (around 50 words).",
-                maxTokens = 150,
+                maxTokens = 1000,
                 temperature = 0.8
             )
 

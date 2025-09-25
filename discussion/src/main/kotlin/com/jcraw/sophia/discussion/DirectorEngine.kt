@@ -1,9 +1,8 @@
 package com.jcraw.sophia.discussion
 
 import com.jcraw.llm.LLMClient
+import com.jcraw.llm.LLMConfig
 import com.jcraw.sophia.config.DirectorPrompts
-import com.jcraw.sophia.config.LLMBridge
-import com.jcraw.sophia.config.LLMConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.*
@@ -29,7 +28,7 @@ class DirectorEngine(
             estimatedDuration = "60 seconds"
         )
 
-        val model = LLMBridge.toOpenAIModel(LLMConfig.directorModel)
+        val model = LLMConfig.directorModel
 
         val response = llmClient.chatCompletion(
             model = model,

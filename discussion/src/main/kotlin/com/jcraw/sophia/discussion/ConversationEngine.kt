@@ -1,8 +1,7 @@
 package com.jcraw.sophia.discussion
 
 import com.jcraw.llm.LLMClient
-import com.jcraw.sophia.config.LLMConfig
-import com.jcraw.sophia.config.LLMBridge
+import com.jcraw.llm.LLMConfig
 import com.jcraw.sophia.config.ConversationPrompts
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.delay
@@ -47,14 +46,17 @@ class ConversationEngine(
 
             println("📝 System prompt length: ${philosopher.systemPrompt.length} chars")
             println("📝 User context length: ${prompt.length} chars")
-            val model = LLMBridge.toOpenAIModel(LLMConfig.defaultPhilosophicalModel)
+            val model = LLMConfig.defaultPhilosophicalModel
             println("🎯 Using model: ${model.modelId}")
 
             val response = llmClient.chatCompletion(
                 model = model,
                 systemPrompt = philosopher.systemPrompt,
                 userContext = prompt,
-                maxTokens = currentState.config.maxWordsPerResponse * 2, // Rough conversion
+                maxTokens = if (model.modelId.startsWith("gpt-5"))
+                    LLMConfig.DEFAULT_MAX_TOKENS
+                else
+                    currentState.config.maxWordsPerResponse * 2, // Rough conversion for GPT-4
                 temperature = LLMConfig.CREATIVE_TEMPERATURE
             )
 
