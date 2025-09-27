@@ -256,6 +256,13 @@ fun MainScreen(
                                     try {
                                         println("🎬 Creating video script for summary: $summaryId")
                                         val scriptId = philosopherService.createVideoScriptAndGetId(summaryId)
+
+                                        // Refresh video scripts to include the new one
+                                        val scriptsForSummary = philosopherService.getVideoScriptsForSummary(summaryId)
+                                        videoScripts = videoScripts.toMutableMap().apply {
+                                            put(summaryId, scriptsForSummary)
+                                        }
+
                                         mode = MainScreenMode.ViewVideoScript(scriptId, summaryId)
                                         println("✅ Video script creation complete! Navigating to video script view.")
                                     } catch (e: Exception) {
