@@ -1,0 +1,75 @@
+
+The Kotlin Gradle plugin was loaded multiple times in different subprojects, which is not supported and may break the build. 
+This might happen in subprojects that apply the Kotlin plugins with the Gradle 'plugins { ... }' DSL if they specify explicit versions, even if the versions are equal.
+Please add the Kotlin plugin to the common parent project or the root project, then remove the versions in the subprojects.
+If the parent project does not need the plugin, add 'apply false' to the plugin line.
+See: https://docs.gradle.org/current/userguide/plugins.html#sec:subprojects_plugins_dsl
+The Kotlin plugin was loaded in the following projects: ':app', ':config'
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:convertXmlValueResourcesForMain NO-SOURCE
+> Task :app:copyNonXmlValueResourcesForMain NO-SOURCE
+> Task :app:prepareComposeResourcesTaskForMain NO-SOURCE
+> Task :app:generateResourceAccessorsForMain SKIPPED
+> Task :app:generateActualResourceCollectorsForMain SKIPPED
+> Task :app:generateComposeResClass SKIPPED
+> Task :database:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :config:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :llm-wrapper:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :llm-wrapper:compileKotlin UP-TO-DATE
+> Task :llm-wrapper:compileJava NO-SOURCE
+> Task :llm-wrapper:processResources NO-SOURCE
+> Task :llm-wrapper:classes UP-TO-DATE
+> Task :llm-wrapper:jar UP-TO-DATE
+> Task :config:compileKotlin UP-TO-DATE
+> Task :config:compileJava NO-SOURCE
+> Task :config:processResources NO-SOURCE
+> Task :config:classes UP-TO-DATE
+> Task :config:jar UP-TO-DATE
+> Task :discussion:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :discussion:compileKotlin UP-TO-DATE
+> Task :discussion:compileJava NO-SOURCE
+> Task :discussion:processResources NO-SOURCE
+> Task :discussion:classes UP-TO-DATE
+> Task :discussion:jar UP-TO-DATE
+> Task :database:compileKotlin UP-TO-DATE
+> Task :database:compileJava NO-SOURCE
+> Task :database:processResources NO-SOURCE
+> Task :database:classes UP-TO-DATE
+> Task :database:jar UP-TO-DATE
+> Task :app:compileKotlin UP-TO-DATE
+> Task :app:compileJava NO-SOURCE
+> Task :app:assembleMainResources UP-TO-DATE
+> Task :app:processResources UP-TO-DATE
+> Task :app:classes UP-TO-DATE
+
+> Task :app:run
+🤖 LLM Profile: debug -> Debug
+   📚 Philosophical: GPT4_1Nano
+   📝 Summarization: GPT4_1Nano
+   🎬 Director: GPT4_1Nano
+✅ Found API key: sk-proj-jw...
+SLF4J: No SLF4J providers were found.
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See https://www.slf4j.org/codes.html#noProviders for further details.
+🔑 Initialized OpenAI client with API key: sk-proj-jw...
+[SKIKO] warn: Failed to create Skia OpenGL context!
+java.lang.RuntimeException: Can't wrap nullptr
+[SKIKO] warn: Exception in draw scope
+org.jetbrains.skiko.RenderException: Cannot init graphic context
+
+> Task :app:run FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:run'.
+> Process 'command '/home/j/.sdkman/candidates/java/23-open/bin/java'' finished with non-zero exit value 143
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 9m 46s
+12 actionable tasks: 1 executed, 11 up-to-date

@@ -54,7 +54,7 @@ sealed class LLMProfile(
     data object Production : LLMProfile(
         philosophicalModel = OpenAIModel.GPT5_Mini,
         summarizationModel = OpenAIModel.GPT5_Mini,
-        directorModel = OpenAIModel.GPT5_Mini
+        directorModel = OpenAIModel.GPT4_1Mini
     )
 }
 

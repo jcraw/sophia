@@ -1,6 +1,6 @@
 package com.jcraw.sophia.discussion
 
-import com.jcraw.sophia.config.PhilosopherPrompts
+import com.jcraw.sophia.config.PhilosopherSystemPrompts
 
 interface PhilosopherRepository {
     fun getAllPhilosophers(): List<Philosopher>
@@ -18,7 +18,7 @@ class DefaultPhilosopherRepository : PhilosopherRepository {
             description = "Ancient Greek philosopher known for the Socratic method and ethical inquiry",
             era = "Ancient Greece",
             nationality = "Greek",
-            systemPrompt = PhilosopherPrompts.socrates
+            systemPrompt = PhilosopherSystemPrompts.socrates
         ),
 
         Philosopher(
@@ -27,7 +27,7 @@ class DefaultPhilosopherRepository : PhilosopherRepository {
             description = "German philosopher who challenged traditional morality and religion",
             era = "19th Century",
             nationality = "German",
-            systemPrompt = PhilosopherPrompts.nietzsche
+            systemPrompt = PhilosopherSystemPrompts.nietzsche
         ),
 
         Philosopher(
@@ -36,7 +36,7 @@ class DefaultPhilosopherRepository : PhilosopherRepository {
             description = "German philosopher who developed critical philosophy and categorical imperatives",
             era = "18th Century",
             nationality = "German",
-            systemPrompt = PhilosopherPrompts.kant
+            systemPrompt = PhilosopherSystemPrompts.kant
         ),
 
         Philosopher(
@@ -45,7 +45,7 @@ class DefaultPhilosopherRepository : PhilosopherRepository {
             description = "Ancient Greek philosopher, student of Plato, tutor to Alexander the Great",
             era = "Ancient Greece",
             nationality = "Greek",
-            systemPrompt = PhilosopherPrompts.aristotle
+            systemPrompt = PhilosopherSystemPrompts.aristotle
         ),
 
         Philosopher(
@@ -54,7 +54,7 @@ class DefaultPhilosopherRepository : PhilosopherRepository {
             description = "French existentialist philosopher emphasizing freedom and responsibility",
             era = "20th Century",
             nationality = "French",
-            systemPrompt = PhilosopherPrompts.sartre
+            systemPrompt = PhilosopherSystemPrompts.sartre
         ),
 
         Philosopher(
@@ -63,7 +63,34 @@ class DefaultPhilosopherRepository : PhilosopherRepository {
             description = "Chinese philosopher focused on ethics, morality, and social harmony",
             era = "Ancient China",
             nationality = "Chinese",
-            systemPrompt = PhilosopherPrompts.confucius
+            systemPrompt = PhilosopherSystemPrompts.confucius
+        ),
+
+        Philosopher(
+            id = "rousseau",
+            name = "Jean-Jacques Rousseau",
+            description = "French philosopher of the Enlightenment, known for social contract theory",
+            era = "18th Century",
+            nationality = "French",
+            systemPrompt = PhilosopherSystemPrompts.rousseau
+        ),
+
+        Philosopher(
+            id = "marcusAurelius",
+            name = "Marcus Aurelius",
+            description = "Roman Emperor and Stoic philosopher, author of Meditations",
+            era = "Ancient Rome",
+            nationality = "Roman",
+            systemPrompt = PhilosopherSystemPrompts.marcusAurelius
+        ),
+
+        Philosopher(
+            id = "laoTzu",
+            name = "Lao Tzu",
+            description = "Ancient Chinese philosopher and founder of Taoism",
+            era = "Ancient China",
+            nationality = "Chinese",
+            systemPrompt = PhilosopherSystemPrompts.laoTzu
         )
     )
 
