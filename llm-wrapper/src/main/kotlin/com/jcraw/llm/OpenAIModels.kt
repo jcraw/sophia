@@ -90,5 +90,5 @@ object LLMConfig {
     // Token limits - GPT-5 needs higher limits due to different tokenization
     const val DEFAULT_MAX_TOKENS = 1000 // ~400 words for GPT-5
     const val LONG_RESPONSE_MAX_TOKENS = 1500 // For detailed responses
-    const val SUMMARIZATION_MAX_TOKENS = 3000 // For summarization output - GPT-4.1-mini has larger context
+    const val SUMMARIZATION_MAX_TOKENS = 6000 // For summarization output - GPT-5 models can handle much larger outputs
 }
